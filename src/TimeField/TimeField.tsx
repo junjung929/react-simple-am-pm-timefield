@@ -92,6 +92,16 @@ const TimeField = ({
         }
       } else if (key === 'ArrowUp' || key === 'ArrowDown') {
         e.preventDefault();
+        if (!section) return;
+        // Increase section
+        // Decrease section
+
+        if (section === 'amPm') {
+          if (ranges === null) return;
+          const oldAmPm = ranges[section].value as string;
+          const newAmPm =
+            oldAmPm === amPmNames.am ? amPmNames.pm : amPmNames.am;
+        }
       }
     }
   };

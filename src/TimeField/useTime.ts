@@ -1,22 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { getRanges, validateTimeText } from './TimeField.utils';
 
 const useTime = (
+  value: string,
   isHour12: boolean,
   amPmNames: { am: string; pm: string },
   colon: ':' = ':'
 ) => {
-  const [value, setValue] = useState('');
-  const [hour, setHour] = useState(0);
-  const [minute, setMinute] = useState(0);
-  const [second, setSecond] = useState(0);
+  const ranges = useMemo(() => getRanges(value), [value]);
+  const [timeText, setTimeText] = useState('');
+  const [hour, setHour] = useState<number>();
+  const [minute, setMinute] = useState<number>();
+  const [second, setSecond] = useState<number>();
 
   useEffect(() => {
+    if (ranges === null) return;
+
+    const h = ranges['hour'].value as number;
+    const m = ranges['minute'].value as number;
+    const s = ranges['second'].value as number;
+    updateTime(h, m, s);
+  }, [ranges]);
+
+  useEffect(() => {
+    if (hour === undefined || minute === undefined || second === undefined)
+      return;
     const text = timeToText(hour, minute, second);
-    setValue(text);
+    setTimeText(text);
   }, [hour, minute, second]);
 
+  const updateTime = (h: number, m: number, s: number) => {
+    setHour(h);
+    setMinute(m);
+    setSecond(s);
+  };
   const increamentHour = (num: number) => {
-    setHour((prev) => (prev + num) % 24);
+    setHour((prev) => ((prev || 0) + num) % 24);
   };
 
   const initialTime = () => {
@@ -26,9 +45,7 @@ const useTime = (
     const m = date.getMinutes();
     const s = date.getSeconds();
 
-    setHour(h);
-    setMinute(m);
-    setSecond(s);
+    updateTime(h, m, s);
   };
 
   const timeToText = (h: number, m: number, s: number) => {
@@ -51,7 +68,7 @@ const useTime = (
     return num < 10 ? '0' + num : num;
   };
 
-  return { value, initialTime };
+  return { value: timeText, initialTime };
 };
 
 export default useTime;
