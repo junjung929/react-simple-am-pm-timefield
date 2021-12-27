@@ -46,7 +46,6 @@ const TimeField = ({
     () => getSelectionRanges(timeText),
     [timeText]
   );
-  console.log({ timeText, selectionRanges });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const key = e.key;
@@ -63,21 +62,98 @@ const TimeField = ({
         setSection('hour');
       } else if (!isNaN(Number(key))) {
         e.preventDefault();
+        // TODO: initialize time depending on input number
         initialTime();
         setSection('hour');
       }
+    }
+    // If not empty
+    else {
+      // Move selectionRange
+      if (e.shiftKey && key === 'Tab') {
+        if (
+          section === 'minute' ||
+          section === 'second' ||
+          section === 'amPm'
+        ) {
+          e.preventDefault();
+          backwardSection();
+        }
+      } else if (key === 'Tab') {
+        if (
+          section === 'hour' ||
+          section === 'minute' ||
+          section === 'second'
+        ) {
+          e.preventDefault();
+          forwardSection();
+        }
+      } else if (key === 'ArrowRight' || key === 'ArrowLeft') {
+        const { selectionStart, selectionEnd } = e.currentTarget;
+        if (key === 'ArrowRight') {
+          if (selectionEnd === null) return;
+          const cursorSection = findCursorSection(selectionEnd + 1);
+          console.log({ cursorSection });
+          setSection(cursorSection);
+        } else {
+          if (selectionStart === null) return;
+          const cursorSection = findCursorSection(selectionStart - 1);
+          console.log({ cursorSection });
+          setSection(cursorSection);
+        }
+      }
+    }
+  };
+
+  const findCursorSection = (
+    cursorPosition: number
+  ): TimeSection | undefined => {
+    if (selectionRanges === null) return undefined;
+
+    cursorPosition =
+      cursorPosition > timeText.length
+        ? timeText.length
+        : cursorPosition < 0
+        ? 0
+        : cursorPosition;
+
+    console.log({ cursorPosition });
+
+    const sectionRange = selectionRanges.find(
+      (r) => cursorPosition >= r.start && cursorPosition <= r.end
+    );
+    if (sectionRange) {
+      return sectionRange.name;
+    }
+    return 'all';
+  };
+
+  const forwardSection = () => {
+    if (section === 'hour') {
+      setSection('minute');
+    } else if (section === 'minute') {
+      setSection('second');
+    } else if (section === 'second') {
+      setSection('amPm');
+    }
+  };
+
+  const backwardSection = () => {
+    if (section === 'minute') {
+      setSection('hour');
+    } else if (section === 'second') {
+      setSection('minute');
+    } else if (section === 'amPm') {
+      setSection('second');
     }
   };
 
   const setRange = useCallback(
     (section: TimeSection) => {
-      console.log({ selectionRanges });
       if (selectionRanges === null) return;
       const selection = selectionRanges.find((r) => r.name === section);
-      console.log(selection);
       if (!selection) return;
       const { start, end } = selection;
-      console.log({ start, end });
 
       inputRef.current?.setSelectionRange(start, end);
     },
@@ -85,7 +161,6 @@ const TimeField = ({
   );
 
   useEffect(() => {
-    console.log(section);
     section && setRange(section);
   }, [section, setRange]);
 
@@ -100,6 +175,10 @@ const TimeField = ({
       value={timeText}
       onChange={(e) => updateValue(timeText)}
       onKeyDown={handleKeyDown}
+      onBlur={(e) => {
+        e.preventDefault();
+        setSection(undefined);
+      }}
     />
   );
 };

@@ -117,6 +117,7 @@ const TimeField = ({
     }
     return 'all';
   };
+
   const forwardSection = () => {
     if (section === 'hour') {
       setSection('minute');
