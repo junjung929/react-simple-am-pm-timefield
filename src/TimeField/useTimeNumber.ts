@@ -15,6 +15,7 @@ const useTimeNumber = (
       setIsUpdated(false);
     }
   }, [number]);
+
   useEffect(() => {
     const inputTimerId = setTimeout(() => {
       setIsTensDigit(false);
@@ -27,6 +28,7 @@ const useTimeNumber = (
       setIsUpdated(true);
       setNumber(undefined);
     }
+
     return () => {
       clearTimeout(inputTimerId);
     };

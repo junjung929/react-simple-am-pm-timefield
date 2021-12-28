@@ -16,8 +16,8 @@ const useTime = (
   // Names of am/pm
   amPmNames: AmPmNames
 ) => {
-  const [timeValue, setTimeValue] = useState<Date>();
-  const [timeText, setTimeText] = useState<string>('');
+  const timeValueRef = useRef<Date>();
+  const timeTextRef = useRef('');
 
   useEffect(() => {
     console.log('value, amPmNames, oldValue useEffect', {
@@ -35,21 +35,24 @@ const useTime = (
     // Save to time value
     const [h, m, s] = numbers;
     const date = new Date(0, 0, 0, h, m, s);
-    setTimeValue(date);
+    timeValueRef.current = date;
   }, [value, amPmNames]);
 
-  // Update timeText on timeValue changed.
+  // Update timeTextRef.current  on timeValueRef.current changed.
   useEffect(() => {
-    console.log('timeValue, colon, amPmNames, isHour12, timeText', {
-      timeValue,
-      colon,
-      amPmNames,
-      isHour12,
-      timeText,
-    });
-    if (timeValue === undefined) return;
+    console.log(
+      'timeValueRef.current, colon, amPmNames, isHour12, timeTextRef.current ',
+      {
+        timeValueRef,
+        colon,
+        amPmNames,
+        isHour12,
+        timeTextRef,
+      }
+    );
+    if (timeValueRef.current === undefined) return;
 
-    const date = timeValue;
+    const date = timeValueRef.current;
     const h = date.getHours();
     const m = date.getMinutes();
     const s = date.getSeconds();
@@ -58,22 +61,23 @@ const useTime = (
       const amPm = h >= 0 && h < 12 ? amPmNames.am : amPmNames.pm;
       const hour = h % 12 === 0 ? 12 : h % 12;
       const tText = timeToString(hour, m, s, colon) + ' ' + amPm;
-      return setTimeText(tText);
+      timeTextRef.current = tText;
+      return;
     }
 
     const tText = timeToString(h, m, s, colon);
-    setTimeText(tText);
-  }, [timeValue, colon, amPmNames, isHour12, timeText]);
+    timeTextRef.current = tText;
+  }, [colon, amPmNames, isHour12]);
 
-  // Initialize timeValue with current date time.
+  // Initialize timeValueRef.current with current date time.
   const initialTime = useCallback(() => {
     const date = new Date();
-    setTimeValue(date);
+    timeValueRef.current = date;
   }, []);
 
   const tickTime = useCallback(
     (section: TimeSelectionNames[number], upDown: 'up' | 'down') => {
-      const newTimeValue: Date = timeValue || new Date();
+      const newTimeValue: Date = timeValueRef.current || new Date();
 
       const dValue = upDown === 'up' ? 1 : -1;
 
@@ -91,14 +95,14 @@ const useTime = (
         newTimeValue.setSeconds(s + dValue);
       }
       const date = new Date(newTimeValue);
-      setTimeValue(date);
+      timeValueRef.current = date;
     },
-    [timeValue]
+    []
   );
 
   const updateTime = useCallback(
     (section: TimeSelectionNames[number], value: number) => {
-      const newTimeValue: Date = timeValue || new Date();
+      const newTimeValue: Date = timeValueRef.current || new Date();
       if (section === 'hour') {
         const h = newTimeValue.getHours();
         if (h === value) return;
@@ -113,18 +117,24 @@ const useTime = (
         newTimeValue.setSeconds(value);
       }
       const date = new Date(newTimeValue);
-      setTimeValue(date);
+      timeValueRef.current = date;
     },
-    [timeValue]
+    []
   );
 
   const reset = () => {
     console.log('reset');
-    setTimeText('');
-    setTimeValue(undefined);
+    timeTextRef.current = '';
+    timeValueRef.current = undefined;
   };
 
-  return { timeText, initialTime, tickTime, updateTime, reset };
+  return {
+    timeText: timeTextRef.current,
+    initialTime,
+    tickTime,
+    updateTime,
+    reset,
+  };
 };
 
 export default useTime;

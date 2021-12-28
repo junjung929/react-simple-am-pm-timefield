@@ -5,28 +5,21 @@ import TimeField, { TimeFieldWithHook } from './TimeField';
 function App() {
   const [value, setValue] = useState('');
   useEffect(() => {
-    console.log({ value });
+    console.log('App value change', { value });
   }, [value]);
 
   const handleChange = (text: string) => {
     setValue(text);
   };
+
   return (
     <div className="App">
-      {/* <TimeField value={value} onChange={handleChange} isHour12={true} /> */}
-      <br />
       <TimeFieldWithHook
         value={value}
         onChange={handleChange}
-        isHour12={false}
+        isHour12={true}
       />
-      <br />
-      <input
-        type="time"
-        step="1"
-        value={value}
-        onChange={(e) => handleChange(e.target.value)}
-      />
+      <p>{value}</p>
     </div>
   );
 }
