@@ -2,22 +2,6 @@ export type TimeSeparator = ':' | '.';
 
 export type TimeSelectionNames = ['hour', 'minute', 'second', 'amPm', 'all'];
 
-export interface TimeFieldSelection {
-  start: number;
-  end: number;
-  name: TimeSelectionNames[number];
-}
-export interface TimePeriod {
-  am: string;
-  pm: string;
-}
-
-export interface TimeFormatOptions {
-  separator?: TimeSeparator;
-  isHour12?: boolean;
-  periods: TimePeriod; // text for indicating am/pm
-}
-
 export interface AmPmNames {
   am: string;
   pm: string;
@@ -25,7 +9,11 @@ export interface AmPmNames {
 
 interface TimeSelectionRange {
   name: TimeSelectionNames[number];
+
+  // Start position of time
   start: number;
+
+  // End position of time
   end: number;
 }
 

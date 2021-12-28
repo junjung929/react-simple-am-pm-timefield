@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import TimeField, { TimeFieldWithHook } from './TimeField';
+import TimeField from './TimeField';
 
 function App() {
   const [value, setValue] = useState('');
@@ -14,11 +14,7 @@ function App() {
 
   return (
     <div className="App">
-      <TimeFieldWithHook
-        value={value}
-        onChange={handleChange}
-        isHour12={true}
-      />
+      <TimeField value={value} onChange={handleChange} isHour12={true} />
       <p>{value}</p>
     </div>
   );

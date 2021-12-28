@@ -6,22 +6,12 @@ import {
 
 const rangeNames = ['hour', 'minute', 'second'];
 
-const MID_HOUR = 12;
-
-interface TimeSelectionRange {
-  start: number;
-  end: number;
-}
-
-interface NumberTimeRange extends TimeSelectionRange {
-  value: number;
-}
-interface AmPmTimeRange extends TimeSelectionRange {
-  value: string;
-}
-
-type TimeRanges = Record<string, NumberTimeRange | AmPmTimeRange>;
-
+/**
+ * Check if the given text is valid for time format.
+ *
+ * @param timeText Formatted time text, e.g. 12:23:15 AM or 15:12:10.
+ * @returns Returns true if the given text is valid for time format. Otherwise returns false.
+ */
 export const validateTimeText = (timeText: string) => {
   const pattern =
     // Hour between 0 - 23
@@ -33,21 +23,30 @@ export const validateTimeText = (timeText: string) => {
   return pattern.test(timeText);
 };
 
+/**
+ * Extract numbers of hour, minute and second
+ *
+ * @param timeText Formatted time text, e.g. 12:23:15 AM or 15:12:10.
+ * @param amPmNames Object of names of AM / PM
+ * @returns Array of numbers: hour, minute, second
+ */
 export const getTimeNumbers = (
   timeText: string,
   amPmNames: AmPmNames
 ): [number, number, number] | null => {
-  // valid time text
+  // Valid time text.
   const isValid = validateTimeText(timeText);
 
   if (!isValid) return null;
 
+  // Split time and am/pm text.
   const [time, amPm] = timeText.split(' ');
 
   // Split hour, minute and second
-  const pattern = /\d\d/g;
+  const pattern = /\d\d/g; // Match every two digit number
   const matches = time.match(pattern);
 
+  // The length must be 3.
   if (matches === null || matches.length !== 3) return null;
 
   // Convert to number
@@ -55,6 +54,7 @@ export const getTimeNumbers = (
 
   // Normalize if it's 12 hour format
   if (amPm) {
+    // Check the time is am or pm
     if (amPm.toLowerCase() === amPmNames.pm.toLowerCase()) {
       const [hour, ...rest] = numbers;
       // Pm hours 12 - 23
@@ -66,104 +66,82 @@ export const getTimeNumbers = (
     }
   }
 
-  // 12 hour format
+  // 24 hour format.
   return numbers;
 };
 
-export const getRanges = (timeText: string): TimeRanges | null => {
-  // valid time text
-  const isValid = validateTimeText(timeText);
-
-  if (!isValid) return null;
-  const [time, amPm] = timeText.split(' ');
-
-  const pattern = /\d\d/g;
-  const matches = time.match(pattern) || [];
-
-  if (matches.length !== 3) return null;
-
-  const ranges: TimeRanges = matches.reduce((prev, current, index) => {
-    const start = time.indexOf(current);
-    const end = start + current.length;
-    return {
-      ...prev,
-      [rangeNames[index]]: {
-        start,
-        end,
-        value: Number(current),
-      },
-    };
-  }, {});
-
-  if (amPm) {
-    const start = timeText.indexOf(amPm);
-    const end = start + amPm.length;
-    ranges.amPm = {
-      start,
-      end,
-      value: amPm,
-    };
-  }
-  return ranges;
-};
-
-export const initialTime = (
-  isHour12: boolean,
-  amPmNames: { am: string; pm: string },
-  colon: ':'
-) => {
-  const date = new Date();
-  const h = date.getHours();
-  const m = date.getMinutes();
-  const s = date.getSeconds();
-
-  if (isHour12) {
-    const amPm = h < MID_HOUR ? amPmNames.am : amPmNames.pm;
-    return timeToString(h % MID_HOUR, m, s, colon) + ' ' + amPm;
-  }
-
-  return timeToString(h, m, s, colon);
-};
-
+/**
+ * Convert time numbers to time string.
+ *
+ * @param hour
+ * @param minute
+ * @param second
+ * @param separator
+ * @returns Returns time string.
+ */
 export const timeToString = (
-  hours: number,
-  minutes: number,
-  seconds: number,
+  hour: number,
+  minute: number,
+  second: number,
   separator: TimeSeparator
 ) => {
-  const h = normalizeTimeNum(hours);
-  const m = normalizeTimeNum(minutes);
-  const s = normalizeTimeNum(seconds);
+  // Normalize time numbers to two digit strings.
+  const h = normalizeTimeNum(hour);
+  const m = normalizeTimeNum(minute);
+  const s = normalizeTimeNum(second);
+
+  // Join number string to one time string.
   return [h, m, s].join(separator);
 };
 
+/**
+ * Normalize the given number to two digit string.
+ * @param num
+ * @returns Returns two digit string.
+ */
 const normalizeTimeNum = (num: number) => {
   return num < 10 ? '0' + num : num;
 };
 
+/**
+ * Map the given time text to get ranges of hour, minute, and second.
+ * Also get the entire range of the given time text and that of amPm.
+ *
+ * @param timeText Formatted time text, e.g. 12:23:15 AM or 15:12:10.
+ * @returns Returns array of object containing start position and end position.
+ */
 export const getSelectionRanges = (
   timeText: string
 ): TimeSelectionRanges | null => {
-  // valid time text
+  // Valid time text
   const isValid = validateTimeText(timeText);
 
   if (!isValid) return null;
   const [time, amPm] = timeText.split(' ');
 
-  const pattern = /\d\d/g;
+  // Split hour, minute and second
+  const pattern = /\d\d/g; // Match every two digit number
   const matches = time.match(pattern);
 
+  // The length must be 3.
   if (matches === null || matches.length !== 3) return null;
 
+  // Entire range of time text.
   const all = {
     name: 'all',
     start: 0,
     end: timeText.length,
   };
 
+  // Map ranges of hour, minute and second text.
   const ranges = matches.map((current, index) => {
     const name = rangeNames[index];
-    const start = time.indexOf(current, index * current.length);
+
+    const start = time.indexOf(
+      current,
+      // Avoid overlapped value.
+      index * current.length
+    );
     const end = start + current.length;
 
     return {
@@ -174,9 +152,11 @@ export const getSelectionRanges = (
     };
   });
 
+  // If am/pm exists
   if (amPm) {
     const start = timeText.indexOf(amPm);
     const end = start + amPm.length;
+
     return [
       all,
       ...ranges,

@@ -1,74 +1,149 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getRanges, validateTimeText } from './TimeField.utils';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  AmPmNames,
+  TimeSelectionNames,
+  TimeSeparator,
+} from './TimeField.types';
+import { getTimeNumbers, timeToString } from './TimeField.utils';
 
+/**
+ * Control time text
+ *
+ * @param value Text value of time field.
+ * @param colon Separator between numbers.
+ * @param isHour12 Indicator if the time format is 12 or 24 hours.
+ * @param amPmNames Names of am/pm.
+ */
 const useTime = (
   value: string,
+  colon: TimeSeparator,
   isHour12: boolean,
-  amPmNames: { am: string; pm: string },
-  colon: ':' = ':'
+  amPmNames: AmPmNames
 ) => {
-  const ranges = useMemo(() => getRanges(value), [value]);
-  const [timeText, setTimeText] = useState('');
-  const [hour, setHour] = useState<number>();
-  const [minute, setMinute] = useState<number>();
-  const [second, setSecond] = useState<number>();
+  // Store date type version of the given value.
+  const [timeValue, setTimeValue] = useState<Date>();
 
+  // Store the temporary time text from timeValue.
+  const [timeText, setTimeText] = useState<string>('');
+
+  // Update timeValue on value change
   useEffect(() => {
-    if (ranges === null) return;
+    // When value not set.
+    if (value === '') return;
 
-    const h = ranges['hour'].value as number;
-    const m = ranges['minute'].value as number;
-    const s = ranges['second'].value as number;
-    updateTime(h, m, s);
-  }, [ranges]);
+    // Get time numbers from text.
+    const numbers = getTimeNumbers(value, amPmNames);
 
+    if (numbers === null) return;
+
+    // Save to time value as date type
+    const [h, m, s] = numbers;
+    const date = new Date(0, 0, 0, h, m, s);
+    setTimeValue(date);
+  }, [value, amPmNames]);
+
+  // Update timeText on timeValue changed.
   useEffect(() => {
-    if (hour === undefined || minute === undefined || second === undefined)
-      return;
-    const text = timeToText(hour, minute, second);
-    setTimeText(text);
-  }, [hour, minute, second]);
+    // When value not set.
+    if (timeValue === undefined) return;
 
-  const updateTime = (h: number, m: number, s: number) => {
-    setHour(h);
-    setMinute(m);
-    setSecond(s);
-  };
-  const increamentHour = (num: number) => {
-    setHour((prev) => ((prev || 0) + num) % 24);
-  };
-
-  const initialTime = () => {
-    const date = new Date();
-
+    const date = timeValue;
     const h = date.getHours();
     const m = date.getMinutes();
     const s = date.getSeconds();
 
-    updateTime(h, m, s);
-  };
-
-  const timeToText = (h: number, m: number, s: number) => {
+    // If it's 12 hour format.
     if (isHour12) {
-      const amPm = h % 24 < 12 ? amPmNames.am : amPmNames.pm;
-      return timeToString(h % 12, m, s) + ' ' + amPm;
+      // Set am when hour between 0 - 11.
+      // Set pm when hour between 12 - 23.
+      const amPm = h >= 0 && h < 12 ? amPmNames.am : amPmNames.pm;
+
+      // Normalize hour number to 12 hour format.
+      const hour = h % 12 === 0 ? 12 : h % 12;
+      const tText = timeToString(hour, m, s, colon) + ' ' + amPm;
+      return setTimeText(tText);
     }
 
-    return timeToString(h % 24, m, s);
+    // If it's 24 hour format.
+    const tText = timeToString(h, m, s, colon);
+    setTimeText(tText);
+  }, [timeValue, colon, amPmNames, isHour12, timeText]);
+
+  // Initialize timeValue with current date time.
+  const initialTime = useCallback(() => {
+    const date = new Date();
+    setTimeValue(date);
+  }, []);
+
+  // Increase or decrease timeValue by 1 depending on selected section.
+  const tickTime = useCallback(
+    (
+      // Selected section: hour, minute, second or amPm
+      section: TimeSelectionNames[number],
+
+      // Increase when set to up
+      // Decrease when set to down
+      upDown: 'up' | 'down'
+    ) => {
+      const newTimeValue: Date = timeValue || new Date();
+
+      const dValue = upDown === 'up' ? 1 : -1;
+
+      if (section === 'hour') {
+        const h = newTimeValue.getHours();
+        newTimeValue.setHours(h + dValue);
+      } else if (section === 'minute') {
+        const m = newTimeValue.getMinutes();
+        newTimeValue.setMinutes(m + dValue);
+      } else if (section === 'amPm') {
+        const h = newTimeValue.getHours();
+        newTimeValue.setHours(h + 12);
+      } else {
+        const s = newTimeValue.getSeconds();
+        newTimeValue.setSeconds(s + dValue);
+      }
+      const date = new Date(newTimeValue);
+      setTimeValue(date);
+    },
+    [timeValue]
+  );
+
+  // Update time number to the given value
+  const updateTime = useCallback(
+    (
+      // Selected section: hour, minute, second or amPm
+      section: TimeSelectionNames[number],
+      // Desired number to be set
+      value: number
+    ) => {
+      const newTimeValue: Date = timeValue || new Date();
+
+      if (section === 'hour') {
+        const h = newTimeValue.getHours();
+        if (h === value) return;
+        newTimeValue.setHours(value);
+      } else if (section === 'minute') {
+        const m = newTimeValue.getMinutes();
+        if (m === value) return;
+        newTimeValue.setMinutes(value);
+      } else if (section === 'second') {
+        const s = newTimeValue.getSeconds();
+        if (s === value) return;
+        newTimeValue.setSeconds(value);
+      }
+      const date = new Date(newTimeValue);
+      setTimeValue(date);
+    },
+    [timeValue]
+  );
+
+  // Reset timeText and TimeValue to default.
+  const reset = () => {
+    setTimeText('');
+    setTimeValue(undefined);
   };
 
-  const timeToString = (hours: number, minutes: number, seconds: number) => {
-    const h = normalizeTimeNum(hours);
-    const m = normalizeTimeNum(minutes);
-    const s = normalizeTimeNum(seconds);
-    return [h, m, s].join(colon);
-  };
-
-  const normalizeTimeNum = (num: number) => {
-    return num < 10 ? '0' + num : num;
-  };
-
-  return { value: timeText, initialTime };
+  return { timeText, initialTime, tickTime, updateTime, reset };
 };
 
 export default useTime;
