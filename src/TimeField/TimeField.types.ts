@@ -1,6 +1,6 @@
 export type TimeSeparator = ':' | '.';
 
-export type TimeSelectionNames = ['hour', 'minute', 'second', 'amPm'];
+export type TimeSelectionNames = ['hour', 'minute', 'second', 'amPm', 'all'];
 
 export interface TimeFieldSelection {
   start: number;
@@ -29,6 +29,10 @@ interface TimeSelectionRange {
   end: number;
 }
 
+interface AllTimeRange extends TimeSelectionRange {
+  name: 'all';
+}
+
 interface NumberTimeRange extends TimeSelectionRange {
   value: number;
 }
@@ -47,5 +51,11 @@ interface AmPmTimeRange extends TimeSelectionRange {
 }
 
 export type TimeSelectionRanges =
-  | [HourTimeRange, MinuteTimeRange, SecondTimeRange, AmPmTimeRange]
-  | [HourTimeRange, MinuteTimeRange, SecondTimeRange];
+  | [
+      AllTimeRange,
+      HourTimeRange,
+      MinuteTimeRange,
+      SecondTimeRange,
+      AmPmTimeRange
+    ]
+  | [AllTimeRange, HourTimeRange, MinuteTimeRange, SecondTimeRange];

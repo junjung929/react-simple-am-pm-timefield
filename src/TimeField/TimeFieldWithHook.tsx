@@ -7,9 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TimeSelectionRanges } from './TimeField.types';
+import { TimeSelectionNames } from './TimeField.types';
 import { getSelectionRanges } from './TimeField.utils';
 import useTime from './useT';
+import useTimeNumber from './useTimeNumber';
 
 interface TimeFieldProps {
   value: string;
@@ -22,7 +23,7 @@ interface TimeFieldProps {
   };
 }
 
-type TimeSection = 'hour' | 'minute' | 'second' | 'amPm' | 'all';
+type TimeSection = TimeSelectionNames[number];
 
 const DEFAULT_COLON = ':';
 const DEFAULT_AM_PM_NAMES = {
@@ -39,9 +40,26 @@ const TimeField = ({
   ...props
 }: TimeFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  // const [ranges, setRanges] = useState<TimeSelectionRanges>();
   const [section, setSection] = useState<TimeSection>();
-  const { timeText, initialTime } = useTime(value, colon, isHour12, amPmNames);
+  const [hourDigit, setHourDigit, isHourUpdated] = useTimeNumber(
+    'hour',
+    isHour12
+  );
+  const [minuteDigit, setMinuteDigit, isMinuteUpdated] = useTimeNumber(
+    'minute',
+    isHour12
+  );
+  const [secondDigit, setSecondDigit, isSecondUpdated] = useTimeNumber(
+    'second',
+    isHour12
+  );
+  console.log({ hourDigit, minuteDigit, secondDigit, isHourUpdated });
+  const { timeText, initialTime, tickTime, updateTime, reset } = useTime(
+    value,
+    colon,
+    isHour12,
+    amPmNames
+  );
   const selectionRanges = useMemo(
     () => getSelectionRanges(timeText),
     [timeText]
@@ -49,8 +67,9 @@ const TimeField = ({
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const key = e.key;
+    console.log(key);
     // text is empty
-    if (value === '') {
+    if (timeText === '') {
       if (
         key === 'ArrowUp' ||
         key === 'ArrowDown' ||
@@ -62,8 +81,7 @@ const TimeField = ({
         setSection('hour');
       } else if (!isNaN(Number(key))) {
         e.preventDefault();
-        // TODO: initialize time depending on input number
-        initialTime();
+        setHourDigit(Number(key));
         setSection('hour');
       }
     }
@@ -80,63 +98,113 @@ const TimeField = ({
           backwardSection();
         }
       } else if (key === 'Tab') {
-        if (
-          section === 'hour' ||
-          section === 'minute' ||
-          section === 'second'
-        ) {
-          e.preventDefault();
-          forwardSection();
-        }
+        e.preventDefault();
+        forwardSection();
       } else if (key === 'ArrowRight' || key === 'ArrowLeft') {
+        console.log({ key });
         const { selectionStart, selectionEnd } = e.currentTarget;
+        if (selectionStart === null || selectionEnd === null) return;
         if (key === 'ArrowRight') {
-          if (selectionEnd === null) return;
-          const cursorSection = findCursorSection(selectionEnd + 1);
+          const cursorPosition = selectionEnd + 1;
+          const cursorSection = findCursorSection(
+            cursorPosition,
+            cursorPosition
+          );
           console.log({ cursorSection });
           setSection(cursorSection);
         } else {
-          if (selectionStart === null) return;
-          const cursorSection = findCursorSection(selectionStart - 1);
+          const cursorPosition = selectionStart - 1;
+          const cursorSection = findCursorSection(
+            cursorPosition,
+            cursorPosition
+          );
           console.log({ cursorSection });
           setSection(cursorSection);
+        }
+      } else if (key === 'ArrowUp' || key === 'ArrowDown') {
+        e.preventDefault();
+        if (!section) return;
+        // Increase section
+        if (key === 'ArrowUp') {
+          tickTime(section, 'up');
+        }
+        // Decrease section
+        else {
+          tickTime(section, 'down');
+        }
+      } else if (key === 'Escape' || key === 'Backspace') {
+        reset();
+      } else if (key === 'Enter') {
+        inputRef.current?.blur();
+      } else if (!isNaN(Number(key))) {
+        e.preventDefault();
+        if (!section) return;
+        console.log({ section });
+        if (section === 'minute') {
+          setMinuteDigit(Number(key));
+        } else if (section === 'second') {
+          setSecondDigit(Number(key));
+        } else {
+          setSection('hour');
+          setHourDigit(Number(key));
         }
       }
     }
   };
 
+  const handleSelect = (e: MouseEvent<HTMLInputElement>) => {
+    if (value === '') return;
+
+    const { selectionStart, selectionEnd } = e.currentTarget;
+    if (selectionStart === null || selectionEnd === null) return;
+    const section = findCursorSection(selectionStart, selectionEnd);
+    console.log({ section });
+    setSection(section);
+  };
+
   const findCursorSection = (
-    cursorPosition: number
+    start: number,
+    end: number
   ): TimeSection | undefined => {
     if (selectionRanges === null) return undefined;
 
-    cursorPosition =
-      cursorPosition > timeText.length
-        ? timeText.length
-        : cursorPosition < 0
-        ? 0
-        : cursorPosition;
+    // Normalize value to avoid overflow
+    start = start > timeText.length ? timeText.length : start < 0 ? 0 : start;
 
-    console.log({ cursorPosition });
+    end = end > timeText.length ? timeText.length : end < 0 ? 0 : end;
 
-    const sectionRange = selectionRanges.find(
-      (r) => cursorPosition >= r.start && cursorPosition <= r.end
-    );
+    const [allRange, ...ranges] = selectionRanges;
+    const sectionRange = ranges.find((r) => start >= r.start && end <= r.end);
+    console.log({
+      timeText,
+      sectionRange,
+      cursorPosition: start,
+      selectionRanges,
+    });
     if (sectionRange) {
       return sectionRange.name;
     }
+
     return 'all';
   };
 
-  const forwardSection = () => {
+  const forwardSection = useCallback(() => {
+    console.log('forwar', { section });
     if (section === 'hour') {
       setSection('minute');
     } else if (section === 'minute') {
       setSection('second');
     } else if (section === 'second') {
-      setSection('amPm');
+      if (isHour12) {
+        setSection('amPm');
+      } else {
+        setSection('hour');
+      }
+    } else {
+      console.log('forwar2', { section });
+      setSection('hour');
     }
-  };
+  }, [section, isHour12]);
 
   const backwardSection = () => {
     if (section === 'minute') {
@@ -161,8 +229,33 @@ const TimeField = ({
   );
 
   useEffect(() => {
+    console.log('section', { section });
     section && setRange(section);
   }, [section, setRange]);
+
+  useEffect(() => {
+    if (isHourUpdated) {
+      forwardSection();
+    }
+    if (hourDigit === undefined) return;
+    updateTime('hour', hourDigit);
+  }, [hourDigit, updateTime, forwardSection, isHourUpdated]);
+
+  useEffect(() => {
+    if (isMinuteUpdated) {
+      forwardSection();
+    }
+    if (minuteDigit === undefined) return;
+    updateTime('minute', minuteDigit);
+  }, [minuteDigit, updateTime, forwardSection, isMinuteUpdated]);
+
+  useEffect(() => {
+    if (isSecondUpdated) {
+      forwardSection();
+    }
+    if (secondDigit === undefined) return;
+    updateTime('second', secondDigit);
+  }, [secondDigit, updateTime, forwardSection, isSecondUpdated]);
 
   useEffect(() => {
     updateValue(timeText);
@@ -173,12 +266,17 @@ const TimeField = ({
       ref={inputRef}
       type="text"
       value={timeText}
-      onChange={(e) => updateValue(timeText)}
+      onChange={(e) => {
+        console.log('change');
+        updateValue(e.target.value);
+      }}
       onKeyDown={handleKeyDown}
       onBlur={(e) => {
         e.preventDefault();
         setSection(undefined);
+        updateValue(e.target.value);
       }}
+      onSelect={handleSelect}
     />
   );
 };

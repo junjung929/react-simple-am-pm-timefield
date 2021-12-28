@@ -24,6 +24,11 @@ type TimeRanges = Record<string, NumberTimeRange | AmPmTimeRange>;
 
 export const validateTimeText = (timeText: string) => {
   const pattern =
+    // Hour between 0 - 23
+    // Separator "." or ":"
+    // Minute between 0 - 59
+    // Second between 0 - 59
+    // Am/Pm letters (optional)
     /^([01][0-9]|2[0-3])(\.|:)[0-5][0-9](\.|:)[0-5][0-9]( .{2,})?$/;
   return pattern.test(timeText);
 };
@@ -48,11 +53,20 @@ export const getTimeNumbers = (
   // Convert to number
   const numbers = matches.map((m) => Number(m)) as [number, number, number];
 
-  // Normalize hour if it's afternoon
-  if (amPm === amPmNames.pm) {
-    const [hour, ...rest] = numbers;
-    return [hour + MID_HOUR, ...rest];
+  // Normalize if it's 12 hour format
+  if (amPm) {
+    if (amPm.toLowerCase() === amPmNames.pm.toLowerCase()) {
+      const [hour, ...rest] = numbers;
+      // Pm hours 12 - 23
+      return [(hour % 12) + 12, ...rest];
+    } else if (amPm.toLowerCase() === amPmNames.am.toLowerCase()) {
+      const [hour, ...rest] = numbers;
+      // Am hours 0 - 11
+      return [hour % 12, ...rest];
+    }
   }
+
+  // 12 hour format
   return numbers;
 };
 
@@ -141,9 +155,15 @@ export const getSelectionRanges = (
 
   if (matches === null || matches.length !== 3) return null;
 
+  const all = {
+    name: 'all',
+    start: 0,
+    end: timeText.length,
+  };
+
   const ranges = matches.map((current, index) => {
     const name = rangeNames[index];
-    const start = time.indexOf(current);
+    const start = time.indexOf(current, index * current.length);
     const end = start + current.length;
 
     return {
@@ -158,6 +178,7 @@ export const getSelectionRanges = (
     const start = timeText.indexOf(amPm);
     const end = start + amPm.length;
     return [
+      all,
       ...ranges,
       {
         name: 'amPm',
@@ -167,5 +188,5 @@ export const getSelectionRanges = (
       },
     ] as TimeSelectionRanges;
   }
-  return ranges as TimeSelectionRanges;
+  return [all, ...ranges] as TimeSelectionRanges;
 };
