@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { AmPmNames, TimeSelectionName, TimeSeparator } from './TimeField.types';
 import {
-  AmPmNames,
-  TimeSelectionNames,
-  TimeSeparator,
-} from './TimeField.types';
-import {
-  formatTimeText,
   generateDateFromTimeText,
   generateTimeTextFromDate,
 } from './TimeField.utils';
 
 /**
- * Control time text
+ * Control time text.
  *
  * @param value Text value of time field.
  * @param colon Separator between numbers.
@@ -58,7 +54,7 @@ const useTime = (
   const tickTime = useCallback(
     (
       // Selected section: hour, minute, second or amPm
-      section: TimeSelectionNames[number],
+      section: TimeSelectionName,
 
       // Increase when set to up
       // Decrease when set to down
@@ -91,7 +87,7 @@ const useTime = (
   const updateTime = useCallback(
     (
       // Selected section: hour, minute, second or amPm
-      section: TimeSelectionNames[number],
+      section: TimeSelectionName,
       // Desired number to be set
       value: number
     ) => {

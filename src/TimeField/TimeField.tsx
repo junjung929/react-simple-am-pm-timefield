@@ -1,5 +1,6 @@
 import React, {
   ChangeEvent,
+  CSSProperties,
   FocusEvent,
   KeyboardEvent,
   memo,
@@ -10,7 +11,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TimeSelectionNames } from './TimeField.types';
+
+import { KeyEnum, TimeSelectionName } from './TimeField.types';
 import { formatTimeText, getSelectionRanges } from './TimeField.utils';
 import useTime from './useTime';
 import useTimeNumber from './useTimeNumber';
@@ -24,9 +26,14 @@ interface TimeFieldProps {
     am: string;
     pm: string;
   };
+  id?: string;
+  className?: string;
+  style?: CSSProperties;
+  placeHolder?: string;
+  title?: string;
 }
 
-type TimeSection = TimeSelectionNames[number];
+type TimeSection = TimeSelectionName;
 
 type EventFlg = 'onBlur' | 'onKeyDown' | 'onChange' | 'onSelect' | '';
 
@@ -37,36 +44,65 @@ const DEFAULT_AM_PM_NAMES = {
 };
 
 const TimeField = ({
-  isHour12 = false,
+  // Element ID.
+  id,
+
+  // Element class.
+  className,
+
+  // CSS style object.
+  style,
+
+  // Time text.
   value,
-  onChange,
+
+  // Indicator for time format either 12 or 24 hour.
+  isHour12 = false,
+
+  // Separator between numbers.
   colon = DEFAULT_COLON,
+
+  // Names for am/pm.
   amPmNames = DEFAULT_AM_PM_NAMES,
-  ...props
+
+  // Update time text.
+  onChange,
+
+  placeHolder,
+
+  title,
 }: TimeFieldProps) => {
+  // Input element reference.
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Section for the selected ranged of time numbers.
   const [section, setSection] = useState<TimeSection>();
+
+  // Indicator for where the event was triggered.
   const [eventFlag, setEventFlag] = useState<EventFlg>('');
+
+  // Always save value as 24 hour format even though it can be displayed in 12 hour format.
+  // Use with onChange handler.
   const formatTimeTextTo24Hour = useCallback(
     (value: string) => formatTimeText(value, amPmNames, false, colon),
     [amPmNames, colon]
   );
 
+  // Hooks to track the hour number change.
   const [hourDigit, setHourDigit, isHourUpdated] = useTimeNumber(
     'hour',
     isHour12
   );
 
-  const [minuteDigit, setMinuteDigit, isMinuteUpdated] = useTimeNumber(
-    'minute',
-    isHour12
-  );
+  // Hooks to track the minute number change.
+  const [minuteDigit, setMinuteDigit, isMinuteUpdated] =
+    useTimeNumber('minute');
 
-  const [secondDigit, setSecondDigit, isSecondUpdated] = useTimeNumber(
-    'second',
-    isHour12
-  );
+  // Hooks to track the second number change.
+  const [secondDigit, setSecondDigit, isSecondUpdated] =
+    useTimeNumber('second');
 
+  // Hooks to control the timeText to display
   const { timeText, initialTime, tickTime, updateTime, reset } = useTime(
     value,
     colon,
@@ -74,60 +110,74 @@ const TimeField = ({
     amPmNames
   );
 
+  // Array of range info for each time number: all, hour, minute, second and amPm.
   const selectionRanges = useMemo(
     () => getSelectionRanges(timeText),
     [timeText]
   );
 
+  // Handle timeText when input.
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation();
+
     setEventFlag('onKeyDown');
 
     const key = e.key;
-    console.log(key);
-    // text is empty
+
+    // When text is empty.
     if (timeText === '') {
+      // Initialize time to current time on arrow keys.
       if (
-        key === 'ArrowUp' ||
-        key === 'ArrowDown' ||
-        key === 'ArrowLeft' ||
-        key === 'ArrowRight'
+        key === KeyEnum.ArrowUp ||
+        key === KeyEnum.ArrowDown ||
+        key === KeyEnum.ArrowLeft ||
+        key === KeyEnum.ArrowRight
       ) {
         e.preventDefault();
         initialTime();
         setSection('hour');
-      } else if (!isNaN(Number(key))) {
+      }
+
+      // Initialize time with hour on any number key.
+      else if (!isNaN(Number(key))) {
         e.preventDefault();
         setHourDigit(Number(key));
         setSection('hour');
       }
+      // Pass.
     }
+
     // If not empty
     else {
-      // Move selectionRange
-      if (e.shiftKey && key === 'Tab') {
-        if (
-          section === 'minute' ||
-          section === 'second' ||
-          section === 'amPm'
-        ) {
-          e.preventDefault();
-          backwardSection();
-        }
-      } else if (key === 'Tab') {
+      // Move selectionRange to previous section.
+      if (e.shiftKey && key === KeyEnum.Tab) {
+        e.preventDefault();
+        backwardSection();
+      }
+
+      // Move selectionRange to next section.
+      else if (key === KeyEnum.Tab) {
         e.preventDefault();
         forwardSection();
-      } else if (key === 'ArrowRight' || key === 'ArrowLeft') {
+      }
+
+      // Move selectionRange to previous or next section.
+      else if (key === KeyEnum.ArrowRight || key === KeyEnum.ArrowLeft) {
         const { selectionStart, selectionEnd } = e.currentTarget;
         if (selectionStart === null || selectionEnd === null) return;
-        if (key === 'ArrowRight') {
+
+        // Move selectionRange to next section.
+        if (key === KeyEnum.ArrowRight) {
           const cursorPosition = selectionEnd + 1;
           const cursorSection = findCursorSection(
             cursorPosition,
             cursorPosition
           );
           setSection(cursorSection);
-        } else {
+        }
+
+        // Move selectionRange to previous section.
+        else {
           const cursorPosition = selectionStart - 1;
           const cursorSection = findCursorSection(
             cursorPosition,
@@ -135,32 +185,56 @@ const TimeField = ({
           );
           setSection(cursorSection);
         }
-      } else if (key === 'ArrowUp' || key === 'ArrowDown') {
+      }
+
+      // Increase or decrease the selected time number.
+      else if (key === KeyEnum.ArrowUp || key === KeyEnum.ArrowDown) {
         e.preventDefault();
         if (!section) return;
-        // Increase section
-        if (key === 'ArrowUp') {
+
+        // Increase number.
+        if (key === KeyEnum.ArrowUp) {
           tickTime(section, 'up');
         }
-        // Decrease section
+
+        // Decrease number.
         else {
           tickTime(section, 'down');
         }
-        console.log(e.currentTarget.value);
-      } else if (key === 'Escape' || key === 'Backspace') {
+      }
+
+      // Reset value to empty.
+      else if (key === KeyEnum.Escape || key === KeyEnum.Backspace) {
         reset();
-      } else if (key === 'Enter') {
+      }
+
+      // Finish update.
+      else if (key === KeyEnum.Enter) {
         inputRef.current?.blur();
-      } else if (!isNaN(Number(key))) {
+      }
+
+      // Handling number keys.
+      else if (!isNaN(Number(key))) {
         e.preventDefault();
         if (!section) return;
+
+        // Get minute value.
         if (section === 'minute') {
           setMinuteDigit(Number(key));
-        } else if (section === 'second') {
+        }
+
+        // Get second value.
+        else if (section === 'second') {
           setSecondDigit(Number(key));
-        } else if (section === 'amPm') {
+        }
+
+        // Keep the current value and move on.
+        else if (section === 'amPm') {
           forwardSection();
-        } else {
+        }
+
+        // Get hour value.
+        else {
           setSection('hour');
           setHourDigit(Number(key));
         }
@@ -168,29 +242,37 @@ const TimeField = ({
     }
   };
 
+  // Handle time number section on cursor change.
   const handleSelect = (e: MouseEvent<HTMLInputElement>) => {
     e.stopPropagation();
     setEventFlag('onSelect');
 
     if (value === '') return;
 
+    // Set new time number section depending on the current selection.
     const { selectionStart, selectionEnd } = e.currentTarget;
     if (selectionStart === null || selectionEnd === null) return;
     const section = findCursorSection(selectionStart, selectionEnd);
     setSection(section);
   };
 
+  /**
+   * Find the corresponding time number section to the given selection range.
+   * @param start The start position of the selected range.
+   * @param end The end position of the selected range.
+   * @returns {string} Name of the time number section.
+   */
   const findCursorSection = (
     start: number,
     end: number
   ): TimeSection | undefined => {
     if (selectionRanges === null) return undefined;
 
-    // Normalize value to avoid overflow
+    // Normalize value to avoid overflow.
     start = start > timeText.length ? timeText.length : start < 0 ? 0 : start;
-
     end = end > timeText.length ? timeText.length : end < 0 ? 0 : end;
 
+    // Find the corresponding range to the start and the end positions.
     const [allRange, ...ranges] = selectionRanges;
     const sectionRange = ranges.find((r) => start >= r.start && end <= r.end);
 
@@ -201,34 +283,64 @@ const TimeField = ({
     return allRange.name;
   };
 
+  // Move to the next time number section.
   const forwardSection = useCallback(() => {
     if (section === 'all') {
       setSection('hour');
-    } else if (section === 'hour') {
+    }
+
+    // Hour to minute.
+    else if (section === 'hour') {
       setSection('minute');
-    } else if (section === 'minute') {
+    }
+
+    // Minute to second.
+    else if (section === 'minute') {
       setSection('second');
-    } else if (section === 'second') {
+    }
+
+    // Second to amPm or , focus out.
+    else if (section === 'second') {
+      // If hour format is 12 hour, continue with amPm.
       if (isHour12) {
         setSection('amPm');
-      } else {
+      }
+      // If hour format is 24 hour, focus out.
+      else {
         inputRef.current?.blur();
       }
-    } else {
+    }
+
+    // Focus out.
+    else {
       inputRef.current?.blur();
     }
   }, [section, isHour12]);
 
+  // Move to the previous time number section.
   const backwardSection = () => {
+    // Minute to hour.
     if (section === 'minute') {
       setSection('hour');
-    } else if (section === 'second') {
+    }
+
+    // Second to minute.
+    else if (section === 'second') {
       setSection('minute');
-    } else if (section === 'amPm') {
+    }
+
+    // AmPm to second.
+    else if (section === 'amPm') {
       setSection('second');
+    }
+
+    // Focus out.
+    else {
+      inputRef.current?.blur();
     }
   };
 
+  // Update selection range regarding to the selected time section.
   const setRange = useCallback(
     (section: TimeSection) => {
       if (selectionRanges === null) return;
@@ -241,62 +353,87 @@ const TimeField = ({
     [selectionRanges]
   );
 
+  // Handle updating selection range on the selected time section change.
   useEffect(() => {
     section && setRange(section);
   }, [section, setRange]);
 
+  // Handle on hour digit number change.
   useEffect(() => {
+    // Move to minute.
     if (isHourUpdated) {
       forwardSection();
     }
+
     if (hourDigit === undefined) return;
+
     updateTime('hour', hourDigit);
   }, [hourDigit, updateTime, forwardSection, isHourUpdated]);
 
+  // Handle on minute digit number change.
   useEffect(() => {
+    // Move to second.
     if (isMinuteUpdated) {
       forwardSection();
     }
     if (minuteDigit === undefined) return;
+
     updateTime('minute', minuteDigit);
   }, [minuteDigit, updateTime, forwardSection, isMinuteUpdated]);
 
+  // Handle on second digit number change.
   useEffect(() => {
+    // Move to amPm or focus out.
     if (isSecondUpdated) {
       forwardSection();
     }
+
     if (secondDigit === undefined) return;
+
     updateTime('second', secondDigit);
   }, [secondDigit, updateTime, forwardSection, isSecondUpdated, isHour12]);
 
+  // Handle on timeText change.
   useEffect(() => {
+    // Update value only if timeText was updated by keyDown event.
     if (eventFlag === 'onKeyDown') {
       const text = formatTimeTextTo24Hour(timeText);
       onChange(text);
     }
   }, [eventFlag, timeText, onChange, formatTimeTextTo24Hour]);
 
+  // Handle when the element is focused out.
   const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
     e.stopPropagation();
     setEventFlag('onBlur');
 
+    // Queue update into stack so it is triggered after default action.
     setTimeout(() => {
       setSection(undefined);
+
+      // Reformat time text to 24 hour format.
       const text = formatTimeTextTo24Hour(e.target.value);
       onChange(text);
     }, 1);
   };
 
+  // Handle when input value is changed.
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     setEventFlag('onChange');
 
+    // Reformat time text to 24 hour format.
     const text = formatTimeTextTo24Hour(e.target.value);
     onChange(text);
   };
 
   return (
     <input
+      id={id}
+      className={className}
+      style={style}
+      placeholder={placeHolder}
+      title={title}
       ref={inputRef}
       type="text"
       value={timeText}
@@ -304,7 +441,6 @@ const TimeField = ({
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       onSelect={handleSelect}
-      // maxLength={timeText.length}
     />
   );
 };

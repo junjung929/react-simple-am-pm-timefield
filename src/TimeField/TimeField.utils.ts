@@ -19,7 +19,7 @@ export const validateTimeText = (timeText: string) => {
     // Minute between 0 - 59
     // Second between 0 - 59
     // Am/Pm letters (optional)
-    /^([01][0-9]|2[0-3])(\.|:)[0-5][0-9](\.|:)[0-5][0-9]( .{2,})?$/;
+    /^([01][0-9]|2[0-3])(\.|:)[0-5][0-9](\.|:)[0-5][0-9]( .{1,})?$/;
   return pattern.test(timeText);
 };
 
@@ -70,6 +70,13 @@ export const getTimeNumbers = (
   return numbers;
 };
 
+/**
+ * Generate date type value from the given time text.
+ *
+ * @param text String value of time.
+ * @param amPmNames Names of am/pm.
+ * @returns Date type value.
+ */
 export const generateDateFromTimeText = (
   text: string,
   amPmNames: AmPmNames
@@ -87,6 +94,15 @@ export const generateDateFromTimeText = (
   return new Date(0, 0, 0, h, m, s);
 };
 
+/**
+ * Generate time text from the given date.
+ *
+ * @param date
+ * @param amPmNames Names of am/pm.
+ * @param isHour12 Indicator whether desired time text is 12 hour or 24 hour format.
+ * @param colon Separator between numbers.
+ * @returns Time text.
+ */
 export const generateTimeTextFromDate = (
   date: Date | undefined,
   amPmNames: AmPmNames,
@@ -116,6 +132,15 @@ export const generateTimeTextFromDate = (
   return tText;
 };
 
+/**
+ * Format the given text to correct formatted time text.
+ *
+ * @param text Text to be formatted.
+ * @param amPmNames Names of am/pm
+ * @param isHour12  Indicator whether desired time text is 12 hour or 24 hour format.
+ * @param colon Separator between numbers.
+ * @returns Formatted time text.
+ */
 export const formatTimeText = (
   text: string,
   amPmNames: AmPmNames,

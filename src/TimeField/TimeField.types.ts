@@ -1,6 +1,6 @@
 export type TimeSeparator = ':' | '.';
 
-export type TimeSelectionNames = ['hour', 'minute', 'second', 'amPm', 'all'];
+export type TimeSelectionName = 'hour' | 'minute' | 'second' | 'amPm' | 'all';
 
 export interface AmPmNames {
   am: string;
@@ -8,7 +8,7 @@ export interface AmPmNames {
 }
 
 interface TimeSelectionRange {
-  name: TimeSelectionNames[number];
+  name: TimeSelectionName;
 
   // Start position of time
   start: number;
@@ -47,3 +47,14 @@ export type TimeSelectionRanges =
       AmPmTimeRange
     ]
   | [AllTimeRange, HourTimeRange, MinuteTimeRange, SecondTimeRange];
+
+export enum KeyEnum {
+  Tab = 'Tab',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight',
+  Escape = 'Escape',
+  Backspace = 'Backspace',
+  Enter = 'Enter',
+}

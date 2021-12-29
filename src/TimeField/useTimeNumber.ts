@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { TimeSelectionNames } from './TimeField.types';
+
+import { TimeSelectionName } from './TimeField.types';
 
 /**
  * Control time number.
@@ -8,7 +9,7 @@ import { TimeSelectionNames } from './TimeField.types';
  * @param isHour12 Indicator if the time format is 12 or 24 hours.
  */
 const useTimeNumber = (
-  section: Omit<TimeSelectionNames[number], 'all' | 'amPm'>,
+  section: Omit<TimeSelectionName, 'all' | 'amPm'>,
   isHour12: boolean = false
 ): [number | undefined, (v: number) => void, boolean] => {
   // Time number.

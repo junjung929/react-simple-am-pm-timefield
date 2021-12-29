@@ -14,7 +14,21 @@ function App() {
 
   return (
     <div className="App">
-      <TimeField value={value} onChange={handleChange} isHour12={true} />
+      <TimeField
+        value={value}
+        onChange={handleChange}
+        isHour12={true}
+        id="12hour-time"
+        className="time"
+      />
+      <br />
+      <TimeField
+        value={value}
+        onChange={handleChange}
+        isHour12={false}
+        id="24hour-time"
+        className="time"
+      />
       <br />
       <TimeField value={value} onChange={handleChange} isHour12={false} />
       <br />
