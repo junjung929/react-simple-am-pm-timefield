@@ -1,7 +1,7 @@
 {
   "name": "react-simple-ampm-timefield",
   "author": "Jun Jung",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "private": false,
   "babel": {
     "presets": [
