@@ -1,46 +1,113 @@
-# Getting Started with Create React App
+# React Simple Am Pm Time Field
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Simple React time input field with 12/24 hour support.
 
-## Available Scripts
+## Installation
 
-In the project directory, you can run:
+```bash
+npm i react-simple-am-pm-timefield
+```
 
-### `npm start`
+## Usage
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```javascript
+import TimeField from 'react-simple-am-pm-timefield';
+import React, { useEffect, useState } from 'react';
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+const [value, setValue] = useState('');
 
-### `npm test`
+const handleChange = (text: string) => {
+  setValue(text);
+};
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+useEffect(() => {
+  console.log(value);
+}, [value]);
 
-### `npm run build`
+const amPmNames = {
+  am: 'AM',
+  pm: 'PM',
+};
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+return (
+  <TimeField
+    value={value}
+    onChange={handleChange}
+    isHour12={false}
+    amPmNames={amPmNames}
+    colon=":"
+  />
+);
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Properties
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Basic Input Properties
 
-### `npm run eject`
+- className :
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  - type : `string`
+  - optional
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- id :
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  - type : `string`
+  - optional
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- placeHolder :
 
-## Learn More
+  - type : `string`
+  - optional
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- title :
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  - type : `string`
+  - optional
+
+- style :
+
+  - type : `CSS Properties`
+  - optional
+
+### Component Properties
+
+- value :
+
+  - type : `string`
+  - require
+  - description : time text
+  - format
+    - `hh:mm:ss tt`
+    - `HH:mm:ss`
+    - `hh.mm.ss tt`
+    - `HH.mm.ss`
+
+- onChange :
+
+  - type : `function`
+  - requires
+  - description : handler for updating value
+
+- isHour12 :
+
+  - type : `boolean`
+  - optional
+  - description : indicator whether time format is 12 or 24 hour.
+  - default: `false`
+
+- colon:
+
+  - type : `:`, `.`
+  - optional
+  - description: separator between numbers
+  - default: `:`
+
+- amPmNames:
+  - type : `object`
+  - optional
+  - description : names for am/pm.
+  - default : `{ am: 'AM', pm: 'PM }`
+
+## License
+
+MIT License.
