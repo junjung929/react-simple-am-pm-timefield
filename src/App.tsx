@@ -30,7 +30,7 @@ function App() {
         className="time"
       />
       <br />
-      <TimeField value={value} onChange={handleChange} isHour12={false} />
+      <TimeField value="" onChange={() => {}} isHour12={false} />
       <br />
       <input
         type="time"

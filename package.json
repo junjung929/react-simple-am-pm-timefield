@@ -1,6 +1,7 @@
 {
-  "name": "timefield",
-  "version": "0.1.0",
+  "name": "react-simple-timefield-ampm",
+  "author": "Jun Jung",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
-    "@babel/preset-react": "^7.16.5"
+    "@babel/preset-react": "^7.16.5",
+    "jest-watch-typeahead": "^0.6.5"
   }
 }
