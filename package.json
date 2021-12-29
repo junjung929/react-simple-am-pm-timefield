@@ -1,8 +1,13 @@
 {
   "name": "react-simple-ampm-timefield",
   "author": "Jun Jung",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.0.1",
+  "private": false,
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -21,7 +26,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "publish:npm": "shx rm -rf dist && mkdir dist &&  babel src/TimeField -d dist --copy-files"
   },
   "eslintConfig": {
     "extends": [
@@ -44,6 +50,18 @@
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/preset-react": "^7.16.5",
-    "jest-watch-typeahead": "^0.6.5"
+    "jest-watch-typeahead": "^0.6.5",
+    "shx": "^0.3.3"
+  },
+  "description": "Simple input time field with 12/24 hour format",
+  "keywords": [
+    "reactjs",
+    "timefield",
+    "ampm"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/junjung929/react-simple-ampm-timefield.git"
   }
 }
