@@ -14,8 +14,8 @@ import React, {
 
 import { KeyEnum, TimeSelectionName } from './TimeField.types';
 import { formatTimeText, getSelectionRanges } from './TimeField.utils';
-import useTime from './useTime';
-import useTimeNumber from './useTimeNumber';
+import useTime from './hooks/useTime';
+import useTimeNumber from './hooks/useTimeNumber';
 
 interface TimeFieldProps {
   value: string;

@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { AmPmNames, TimeSelectionName, TimeSeparator } from './TimeField.types';
+import {
+  AmPmNames,
+  TimeSelectionName,
+  TimeSeparator,
+} from '../TimeField.types';
 import {
   generateDateFromTimeText,
   generateTimeTextFromDate,
-} from './TimeField.utils';
+} from '../TimeField.utils';
 
 /**
  * Control time text.

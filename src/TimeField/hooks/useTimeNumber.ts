@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { TimeSelectionName } from './TimeField.types';
+import { TimeSelectionName } from '../TimeField.types';
 
 /**
  * Control time number.
