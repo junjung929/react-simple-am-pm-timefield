@@ -99,7 +99,7 @@ const useTime = (
 
       if (section === 'hour') {
         const h = newTimeValue.getHours();
-        if (h === value) return;
+        if (timeValue !== undefined && h === value) return;
         newTimeValue.setHours(value);
       } else if (section === 'minute') {
         const m = newTimeValue.getMinutes();
