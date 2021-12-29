@@ -70,6 +70,63 @@ export const getTimeNumbers = (
   return numbers;
 };
 
+export const generateDateFromTimeText = (
+  text: string,
+  amPmNames: AmPmNames
+) => {
+  // When value not set.
+  if (text === '') return;
+
+  // Get time numbers from text.
+  const numbers = getTimeNumbers(text, amPmNames);
+
+  if (numbers === null) return;
+
+  // Save to time value as date type
+  const [h, m, s] = numbers;
+  return new Date(0, 0, 0, h, m, s);
+};
+
+export const generateTimeTextFromDate = (
+  date: Date | undefined,
+  amPmNames: AmPmNames,
+  isHour12: boolean = false,
+  colon: TimeSeparator
+) => {
+  if (date === undefined) return '';
+
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const s = date.getSeconds();
+
+  // If it's 12 hour format.
+  if (isHour12) {
+    // Set am when hour between 0 - 11.
+    // Set pm when hour between 12 - 23.
+    const amPm = h >= 0 && h < 12 ? amPmNames.am : amPmNames.pm;
+
+    // Normalize hour number to 12 hour format.
+    const hour = h % 12 === 0 ? 12 : h % 12;
+    const tText = timeToString(hour, m, s, colon) + ' ' + amPm;
+    return tText;
+  }
+
+  // If it's 24 hour format.
+  const tText = timeToString(h, m, s, colon);
+  return tText;
+};
+
+export const formatTimeText = (
+  text: string,
+  amPmNames: AmPmNames,
+  isHour12: boolean = false,
+  colon: TimeSeparator
+) => {
+  const date = generateDateFromTimeText(text, amPmNames);
+  const timeText = generateTimeTextFromDate(date, amPmNames, isHour12, colon);
+  return timeText;
+};
+
 /**
  * Convert time numbers to time string.
  *
@@ -79,7 +136,7 @@ export const getTimeNumbers = (
  * @param separator
  * @returns Returns time string.
  */
-export const timeToString = (
+const timeToString = (
   hour: number,
   minute: number,
   second: number,

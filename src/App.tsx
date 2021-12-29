@@ -15,6 +15,14 @@ function App() {
   return (
     <div className="App">
       <TimeField value={value} onChange={handleChange} isHour12={true} />
+      <br />
+      <TimeField value={value} onChange={handleChange} isHour12={false} />
+      <br />
+      <input
+        type="time"
+        value={value}
+        onChange={(e) => handleChange(e.target.value)}
+      />
       <p>{value}</p>
     </div>
   );

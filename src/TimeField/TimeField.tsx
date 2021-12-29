@@ -11,11 +11,7 @@ import React, {
   useState,
 } from 'react';
 import { TimeSelectionNames } from './TimeField.types';
-import {
-  getSelectionRanges,
-  getTimeNumbers,
-  timeToString,
-} from './TimeField.utils';
+import { formatTimeText, getSelectionRanges } from './TimeField.utils';
 import useTime from './useTime';
 import useTimeNumber from './useTimeNumber';
 
@@ -31,6 +27,8 @@ interface TimeFieldProps {
 }
 
 type TimeSection = TimeSelectionNames[number];
+
+type EventFlg = 'onBlur' | 'onKeyDown' | 'onChange' | 'onSelect' | '';
 
 const DEFAULT_COLON = ':';
 const DEFAULT_AM_PM_NAMES = {
@@ -48,7 +46,11 @@ const TimeField = ({
 }: TimeFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [section, setSection] = useState<TimeSection>();
-  const [event, setEvent] = useState('');
+  const [eventFlag, setEventFlag] = useState<EventFlg>('');
+  const formatTimeTextTo24Hour = useCallback(
+    (value: string) => formatTimeText(value, amPmNames, false, colon),
+    [amPmNames, colon]
+  );
 
   const [hourDigit, setHourDigit, isHourUpdated] = useTimeNumber(
     'hour',
@@ -79,7 +81,7 @@ const TimeField = ({
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    setEvent('keyDown');
+    setEventFlag('onKeyDown');
 
     const key = e.key;
     console.log(key);
@@ -144,6 +146,7 @@ const TimeField = ({
         else {
           tickTime(section, 'down');
         }
+        console.log(e.currentTarget.value);
       } else if (key === 'Escape' || key === 'Backspace') {
         reset();
       } else if (key === 'Enter') {
@@ -155,6 +158,8 @@ const TimeField = ({
           setMinuteDigit(Number(key));
         } else if (section === 'second') {
           setSecondDigit(Number(key));
+        } else if (section === 'amPm') {
+          forwardSection();
         } else {
           setSection('hour');
           setHourDigit(Number(key));
@@ -165,7 +170,7 @@ const TimeField = ({
 
   const handleSelect = (e: MouseEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    setEvent('select');
+    setEventFlag('onSelect');
 
     if (value === '') return;
 
@@ -236,17 +241,6 @@ const TimeField = ({
     [selectionRanges]
   );
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-    setEvent('Blur');
-
-    setSection(undefined);
-    setTimeout(() => {
-      const text = formatTimeText(e.target.value);
-      onChange(text);
-    }, 1);
-  };
-
   useEffect(() => {
     section && setRange(section);
   }, [section, setRange]);
@@ -275,45 +269,29 @@ const TimeField = ({
     updateTime('second', secondDigit);
   }, [secondDigit, updateTime, forwardSection, isSecondUpdated, isHour12]);
 
-  const formatTimeText = (value: string) => {
-    if (value === '') return '';
-
-    // Get time numbers from text.
-    const numbers = getTimeNumbers(value, amPmNames);
-
-    if (numbers === null) return '';
-
-    // Save to time value as date type
-    const [h, m, s] = numbers;
-
-    // If it's 12 hour format.
-    if (isHour12) {
-      // Set am when hour between 0 - 11.
-      // Set pm when hour between 12 - 23.
-      const amPm = h >= 0 && h < 12 ? amPmNames.am : amPmNames.pm;
-
-      // Normalize hour number to 12 hour format.
-      const hour = h % 12 === 0 ? 12 : h % 12;
-      const tText = timeToString(hour, m, s, colon) + ' ' + amPm;
-      return tText;
-    }
-
-    // If it's 24 hour format.
-    const tText = timeToString(h, m, s, colon);
-    return tText;
-  };
-
   useEffect(() => {
-    if (event !== 'change') {
-      onChange(timeText);
+    if (eventFlag === 'onKeyDown') {
+      const text = formatTimeTextTo24Hour(timeText);
+      onChange(text);
     }
-  }, [onChange, timeText, event]);
+  }, [eventFlag, timeText, onChange, formatTimeTextTo24Hour]);
+
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    setEventFlag('onBlur');
+
+    setTimeout(() => {
+      setSection(undefined);
+      const text = formatTimeTextTo24Hour(e.target.value);
+      onChange(text);
+    }, 1);
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    setEvent('change');
+    setEventFlag('onChange');
 
-    const text = formatTimeText(e.target.value);
+    const text = formatTimeTextTo24Hour(e.target.value);
     onChange(text);
   };
 

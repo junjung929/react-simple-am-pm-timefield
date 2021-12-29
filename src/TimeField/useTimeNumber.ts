@@ -18,10 +18,10 @@ const useTimeNumber = (
   const [isUpdated, setIsUpdated] = useState(false);
 
   // Indicator if the tens digit is set.
-  const [isTensDigit, setIsTensDigit] = useState(false);
+  const [isTensDigitReady, setIsTensDigitReady] = useState(false);
 
   // Indicator if the units digit is set.
-  const [isUnitsDigit, setIsUnitsDigit] = useState(false);
+  const [isUnitsDigitReady, setIsUnitsDigitReady] = useState(false);
 
   useEffect(() => {
     // If number is updated, set to default value.
@@ -34,15 +34,15 @@ const useTimeNumber = (
   useEffect(() => {
     // Restart if input delay is over.
     const inputTimerId = setTimeout(() => {
-      setIsTensDigit(false);
-      setIsUnitsDigit(false);
+      setIsTensDigitReady(false);
+      setIsUnitsDigitReady(false);
     }, 1000);
 
     // Update if both digits are given.
     // Then reset number to default.
-    if (isTensDigit && isUnitsDigit) {
-      setIsTensDigit(false);
-      setIsUnitsDigit(false);
+    if (isTensDigitReady && isUnitsDigitReady) {
+      setIsTensDigitReady(false);
+      setIsUnitsDigitReady(false);
       setIsUpdated(true);
       setNumber(undefined);
     }
@@ -51,7 +51,7 @@ const useTimeNumber = (
     return () => {
       clearTimeout(inputTimerId);
     };
-  }, [isTensDigit, isUnitsDigit]);
+  }, [isTensDigitReady, isUnitsDigitReady]);
 
   /**
    * Update time number.
@@ -69,14 +69,14 @@ const useTimeNumber = (
     let num = number || 0;
 
     // If both digits not set
-    if (!isTensDigit && !isUnitsDigit) {
+    if (!isTensDigitReady && !isUnitsDigitReady) {
       // Set tens digit if the given number is smaller than limit.
       if (value <= tensDigitLimit) {
         num = (num % 10) + value * 10;
 
         // Set only tens digit is ready.
-        setIsTensDigit(true);
-        setIsUnitsDigit(false);
+        setIsTensDigitReady(true);
+        setIsUnitsDigitReady(false);
       }
 
       // Set units digit if the given number is larger than limit.
@@ -84,13 +84,13 @@ const useTimeNumber = (
         num = value;
 
         // Set both digits are ready.
-        setIsTensDigit(true);
-        setIsUnitsDigit(true);
+        setIsTensDigitReady(true);
+        setIsUnitsDigitReady(true);
       }
     }
 
     // Set units digit if only tens digit is ready.
-    else if (isTensDigit && !isUnitsDigit) {
+    else if (isTensDigitReady && !isUnitsDigitReady) {
       // Get tens digit number.
       const tensDigit = Math.floor(num / 10);
 
@@ -113,8 +113,8 @@ const useTimeNumber = (
       }
 
       // Set both digits are ready.
-      setIsTensDigit(true);
-      setIsUnitsDigit(true);
+      setIsTensDigitReady(true);
+      setIsUnitsDigitReady(true);
     }
     setNumber(num);
   };

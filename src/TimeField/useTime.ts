@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AmPmNames,
   TimeSelectionNames,
   TimeSeparator,
 } from './TimeField.types';
-import { getTimeNumbers, timeToString } from './TimeField.utils';
+import {
+  formatTimeText,
+  generateDateFromTimeText,
+  generateTimeTextFromDate,
+} from './TimeField.utils';
 
 /**
  * Control time text
@@ -28,46 +32,21 @@ const useTime = (
 
   // Update timeValue on value change
   useEffect(() => {
-    // When value not set.
-    if (value === '') return;
-
-    // Get time numbers from text.
-    const numbers = getTimeNumbers(value, amPmNames);
-
-    if (numbers === null) return;
-
-    // Save to time value as date type
-    const [h, m, s] = numbers;
-    const date = new Date(0, 0, 0, h, m, s);
+    const date = generateDateFromTimeText(value, amPmNames);
+    if (date === undefined) return;
     setTimeValue(date);
   }, [value, amPmNames]);
 
   // Update timeText on timeValue changed.
   useEffect(() => {
-    // When value not set.
-    if (timeValue === undefined) return;
-
-    const date = timeValue;
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const s = date.getSeconds();
-
-    // If it's 12 hour format.
-    if (isHour12) {
-      // Set am when hour between 0 - 11.
-      // Set pm when hour between 12 - 23.
-      const amPm = h >= 0 && h < 12 ? amPmNames.am : amPmNames.pm;
-
-      // Normalize hour number to 12 hour format.
-      const hour = h % 12 === 0 ? 12 : h % 12;
-      const tText = timeToString(hour, m, s, colon) + ' ' + amPm;
-      return setTimeText(tText);
-    }
-
-    // If it's 24 hour format.
-    const tText = timeToString(h, m, s, colon);
+    const tText = generateTimeTextFromDate(
+      timeValue,
+      amPmNames,
+      isHour12,
+      colon
+    );
     setTimeText(tText);
-  }, [timeValue, colon, amPmNames, isHour12, timeText]);
+  }, [timeValue, colon, amPmNames, isHour12]);
 
   // Initialize timeValue with current date time.
   const initialTime = useCallback(() => {
