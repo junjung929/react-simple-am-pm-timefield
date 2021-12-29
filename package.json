@@ -1,11 +1,11 @@
 {
   "name": "react-simple-am-pm-timefield",
   "author": "Jun Jung",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": false,
   "main": "dist/index.ts",
   "module": "dist/index.ts",
-  "homepage": "https://github.com/junjung929/react-simple-ampm-timefield#readme",
+  "homepage": "https://github.com/junjung929/react-simple-am-pm-timefield#readme",
   "description": "Simple input time field with 12/24 hour format",
   "keywords": [
     "reactjs",
@@ -15,10 +15,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/junjung929/react-simple-ampm-timefield.git"
+    "url": "https://github.com/junjung929/react-simple-am-pm-timefield.git"
   },
   "bugs": {
-    "url": "https://github.com/cluemediator/react-simple-ampm-timefield/issues"
+    "url": "https://github.com/cluemediator/react-simple-am-pm-timefield/issues"
   },
   "babel": {
     "presets": [
