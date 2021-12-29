@@ -5,7 +5,6 @@
   "private": false,
   "main": "dist/index.ts",
   "module": "dist/index.ts",
-  "homepage": "https://github.com/junjung929/react-simple-am-pm-timefield#readme",
   "description": "Simple input time field with 12/24 hour format",
   "keywords": [
     "reactjs",
