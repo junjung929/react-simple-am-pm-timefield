@@ -89,17 +89,17 @@ const TimeField = ({
   );
 
   // Hooks to track the hour number change.
-  const [hourDigit, setHourDigit, isHourUpdated] = useTimeNumber(
+  const [hourDigit, setHourDigit, isHourUpdated, resetHour] = useTimeNumber(
     'hour',
     isHour12
   );
 
   // Hooks to track the minute number change.
-  const [minuteDigit, setMinuteDigit, isMinuteUpdated] =
+  const [minuteDigit, setMinuteDigit, isMinuteUpdated, resetMinute] =
     useTimeNumber('minute');
 
   // Hooks to track the second number change.
-  const [secondDigit, setSecondDigit, isSecondUpdated] =
+  const [secondDigit, setSecondDigit, isSecondUpdated, resetSecond] =
     useTimeNumber('second');
 
   // Hooks to control the timeText to display
@@ -205,6 +205,9 @@ const TimeField = ({
 
       // Reset value to empty.
       else if (key === KeyEnum.Escape || key === KeyEnum.Backspace) {
+        resetHour();
+        resetMinute();
+        resetSecond();
         reset();
       }
 

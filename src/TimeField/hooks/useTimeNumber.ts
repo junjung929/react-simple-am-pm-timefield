@@ -11,7 +11,7 @@ import { TimeSelectionName } from '../TimeField.types';
 const useTimeNumber = (
   section: Omit<TimeSelectionName, 'all' | 'amPm'>,
   isHour12: boolean = false
-): [number | undefined, (v: number) => void, boolean] => {
+): [number | undefined, (v: number) => void, boolean, () => void] => {
   // Time number.
   const [number, setNumber] = useState<number>();
 
@@ -37,6 +37,7 @@ const useTimeNumber = (
     const inputTimerId = setTimeout(() => {
       setIsTensDigitReady(false);
       setIsUnitsDigitReady(false);
+      setNumber(undefined);
     }, 1000);
 
     // Update if both digits are given.
@@ -120,7 +121,13 @@ const useTimeNumber = (
     setNumber(num);
   };
 
-  return [number, updateTime, isUpdated];
+  const reset = () => {
+    setIsTensDigitReady(false);
+    setIsUnitsDigitReady(false);
+    setNumber(undefined);
+  };
+
+  return [number, updateTime, isUpdated, reset];
 };
 
 export default useTimeNumber;
