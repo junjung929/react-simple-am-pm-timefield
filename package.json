@@ -19,11 +19,6 @@
   "bugs": {
     "url": "https://github.com/cluemediator/react-simple-am-pm-timefield/issues"
   },
-  "babel": {
-    "presets": [
-      "@babel/preset-react"
-    ]
-  },
   "files": [
     "dist",
     "README.md"
@@ -47,7 +42,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "publish:npm": "shx rm -rf dist && mkdir dist &&  babel src/TimeField -d dist --copy-files"
+    "publish:npm": "shx rm -rf dist && tsc src/TimeField/index.ts --jsx react --outDir dist --esModuleInterop"
   },
   "eslintConfig": {
     "extends": [
@@ -68,8 +63,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/cli": "^7.16.0",
-    "@babel/preset-react": "^7.16.5",
     "jest-watch-typeahead": "^0.6.5",
     "shx": "^0.3.3"
   }
