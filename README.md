@@ -2,6 +2,8 @@
 
 Simple React time input field with 12/24 hour support.
 
+Demo available [here](https://react-simpe-am-pm-timefield-demo.netlify.app)
+
 ## Installation
 
 ```bash
