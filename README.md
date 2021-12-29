@@ -44,34 +44,34 @@ return (
 
 ### Basic Input Properties
 
-- className :
+- **className** :
 
   - type : `string`
   - optional
 
-- id :
+- **id** :
 
   - type : `string`
   - optional
 
-- placeHolder :
+- **placeHolder** :
 
   - type : `string`
   - optional
 
-- title :
+- **title** :
 
   - type : `string`
   - optional
 
-- style :
+- **style** :
 
   - type : `CSS Properties`
   - optional
 
 ### Component Properties
 
-- value :
+- **value** :
 
   - type : `string`
   - require
@@ -82,27 +82,27 @@ return (
     - `hh.mm.ss tt`
     - `HH.mm.ss`
 
-- onChange :
+- **onChange** :
 
   - type : `function`
   - requires
   - description : handler for updating value
 
-- isHour12 :
+- **isHour12** :
 
   - type : `boolean`
   - optional
   - description : indicator whether time format is 12 or 24 hour.
   - default: `false`
 
-- colon:
+- **colon**:
 
   - type : `:`, `.`
   - optional
   - description: separator between numbers
   - default: `:`
 
-- amPmNames:
+- **amPmNames**:
   - type : `object`
   - optional
   - description : names for am/pm.
