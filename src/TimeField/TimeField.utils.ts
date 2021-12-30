@@ -82,7 +82,7 @@ export const generateDateFromTimeText = (
   amPmNames: AmPmNames
 ) => {
   // When value not set.
-  if (text === '') return;
+  if (text === '') return null;
 
   // Get time numbers from text.
   const numbers = getTimeNumbers(text, amPmNames);
@@ -104,12 +104,13 @@ export const generateDateFromTimeText = (
  * @returns Time text.
  */
 export const generateTimeTextFromDate = (
-  date: Date | undefined,
+  date: Date | undefined | null,
   amPmNames: AmPmNames,
   isHour12: boolean = false,
   colon: TimeSeparator
 ) => {
-  if (date === undefined) return '';
+  if (date === null) return '';
+  if (date === undefined) return null;
 
   const h = date.getHours();
   const m = date.getMinutes();

@@ -453,7 +453,9 @@ const TimeField = ({
     // Update value only if timeText was updated by keyDown event.
     if (eventFlag === 'onKeyDown') {
       const text = formatTimeTextTo24Hour(timeText);
-      onChange(text);
+      if (text !== null) {
+        onChange(text);
+      }
     }
   }, [eventFlag, timeText, onChange, formatTimeTextTo24Hour]);
 
@@ -468,7 +470,9 @@ const TimeField = ({
 
       // Reformat time text to 24 hour format.
       const text = formatTimeTextTo24Hour(e.target.value);
-      onChange(text);
+      if (text !== null) {
+        onChange(text);
+      }
     }, 1);
   };
 
@@ -479,7 +483,9 @@ const TimeField = ({
 
     // Reformat time text to 24 hour format.
     const text = formatTimeTextTo24Hour(e.target.value);
-    onChange(text);
+    if (text !== null) {
+      onChange(text);
+    }
   };
 
   return (

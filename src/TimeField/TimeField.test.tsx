@@ -232,7 +232,7 @@ describe('Test TimeField component', () => {
       test('up, right, up - update hour and minute by 1 for each', () => {
         const date = new Date();
 
-        const defaultValue = gen12hTime(date);
+        const defaultValue = gen12hTime(date) || '';
 
         render(<TestComponent defaultValue={defaultValue} />);
 
@@ -257,7 +257,7 @@ describe('Test TimeField component', () => {
       test('up, right, up, right, up - update hour, minute and second by 1 for each', () => {
         const date = new Date();
 
-        const defaultValue = gen12hTime(date);
+        const defaultValue = gen12hTime(date) || '';
 
         render(<TestComponent defaultValue={defaultValue} />);
 
@@ -293,7 +293,7 @@ describe('Test TimeField component', () => {
           }, [] as string[])
           .forEach((text) => {
             const date = new Date();
-            const defaultValue = gen12hTime(date);
+            const defaultValue = gen12hTime(date) || '';
 
             const timeText24h = format24hTime(text);
             const timeText12h = format12hTime(text);
@@ -313,11 +313,9 @@ describe('Test TimeField component', () => {
 
       describe('Invalid input - set to default value', () => {
         ['as 11:25:30'].forEach((text) => {
-          const timeText12h = format12hTime(text);
-
           const date = new Date();
 
-          const defaultValue = gen12hTime(date);
+          const defaultValue = gen12hTime(date) || '';
           test(`'${text}' - '${defaultValue}' set to '${defaultValue}' (12 hour format)`, () => {
             render(<TestComponent defaultValue={defaultValue} />);
 

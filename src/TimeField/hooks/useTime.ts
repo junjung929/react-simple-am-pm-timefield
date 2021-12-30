@@ -33,6 +33,7 @@ const useTime = (
   // Update timeValue on value change
   useEffect(() => {
     const date = generateDateFromTimeText(value, amPmNames);
+    if (date === null) return setTimeText('');
     if (date === undefined) return;
     setTimeValue(date);
   }, [value, amPmNames]);
@@ -45,7 +46,9 @@ const useTime = (
       isHour12,
       colon
     );
-    setTimeText(tText);
+    if (tText !== null) {
+      setTimeText(tText);
+    }
   }, [timeValue, colon, amPmNames, isHour12]);
 
   // Initialize timeValue with current date time.

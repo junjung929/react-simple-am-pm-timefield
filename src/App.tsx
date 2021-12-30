@@ -1,10 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent, useEffect, useMemo } from 'react';
 import './App.css';
-import TimeField from './TimeField';
+import TimeField, { generateTimeTextFromDate } from './TimeField';
 import useField from './useField';
 
 function App() {
-  const [emptyValue, handleEmptyChange] = useField('');
+  const [customValue, setCustomValue] = useField('');
+  const [radioValue, setRadioValue] = useField('');
+  const initialValue = useMemo(() => {
+    if (radioValue === 'empty') return '';
+    else if (radioValue === 'current')
+      return generateTimeTextFromDate(
+        new Date(),
+        { am: 'AM', pm: 'PM' },
+        false,
+        ':'
+      );
+    return customValue;
+  }, [radioValue, customValue]);
+  const [value, setValue] = useField(initialValue || '');
 
   useEffect(() => {
     const input = document.getElementById('hour12');
@@ -17,6 +30,29 @@ function App() {
         <h1>React Simple AM/PM Time Field</h1>
       </header>
       <div className="demo-box">
+        <div
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setRadioValue(e.target.value);
+          }}
+        >
+          <input
+            type="radio"
+            name="initial"
+            value="empty"
+            id="empty"
+            defaultChecked
+          />
+          <label htmlFor="empty">Empty</label>
+          <input type="radio" name="initial" value="current" id="current" />
+          <label htmlFor="current">Current time</label>
+          <input type="radio" name="initial" value="custom" id="custom" />
+          <label htmlFor="custom">Custom: </label>
+          <input
+            type="text"
+            value={customValue}
+            onChange={(e) => setCustomValue(e.target.value)}
+          />
+        </div>
         <div className="demo-grid">
           <div className="demo-instruction">
             <h4>Feature list</h4>
@@ -34,8 +70,8 @@ function App() {
           <div className="demo-time time-hour12">
             <label htmlFor="hour12">12h: </label>
             <TimeField
-              value={emptyValue}
-              onChange={handleEmptyChange}
+              value={value}
+              onChange={setValue}
               isHour12={true}
               id="hour12"
               className="time"
@@ -44,8 +80,8 @@ function App() {
           <div className="demo-time time-hour24">
             <label htmlFor="hour24">24h: </label>
             <TimeField
-              value={emptyValue}
-              onChange={handleEmptyChange}
+              value={value}
+              onChange={setValue}
               isHour12={false}
               id="hour24"
               className="time"
@@ -54,8 +90,8 @@ function App() {
           <div className="demo-time time-colon">
             <label htmlFor="colon">colon: </label>
             <TimeField
-              value={emptyValue}
-              onChange={handleEmptyChange}
+              value={value}
+              onChange={setValue}
               isHour12={false}
               colon="."
               id="colon"
@@ -64,7 +100,7 @@ function App() {
           </div>
           <div className="time-value">
             <label>Time Text: </label>
-            <span className="time-text">{emptyValue}</span>
+            <span className="time-text">{value}</span>
           </div>
         </div>
       </div>
