@@ -19,7 +19,7 @@ export const validateTimeText = (timeText: string) => {
     // Minute between 0 - 59
     // Second between 0 - 59
     // Am/Pm letters (optional)
-    /^([01][0-9]|2[0-3])(\.|:)[0-5][0-9](\.|:)[0-5][0-9]( .{1,})?$/;
+    /^([01][0-9]|2[0-3])(\.|:)[0-5][0-9](\.|:)[0-5][0-9]( .{1,})?/;
   return pattern.test(timeText);
 };
 
