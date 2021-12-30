@@ -231,9 +231,9 @@ const TimeField = ({
           setSecondDigit(Number(key));
         }
 
-        // Keep the current value and move on.
+        // Change to another value.
         else if (section === 'amPm') {
-          forwardSection();
+          tickTime('amPm', 'up');
         }
 
         // Get hour value.

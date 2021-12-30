@@ -7,7 +7,7 @@ Demo available [here](https://react-simpe-am-pm-timefield-demo.netlify.app)
 ## Installation
 
 ```bash
-npm i react-simple-am-pm-timefield
+npm i react-simple-am-pm-time-field
 ```
 
 ## Usage
