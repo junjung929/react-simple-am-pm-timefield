@@ -30,6 +30,7 @@ function App() {
         <h1>React Simple AM/PM Time Field</h1>
       </header>
       <div className="demo-box">
+        <h3 style={{ textAlign: 'left' }}>Initial text</h3>
         <div
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setRadioValue(e.target.value);
@@ -51,6 +52,7 @@ function App() {
             type="text"
             value={customValue}
             onChange={(e) => setCustomValue(e.target.value)}
+            placeholder="hh:mm:ss tt"
           />
         </div>
         <div className="demo-grid">
