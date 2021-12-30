@@ -41,6 +41,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "shx rm -rf build/**/*.map",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "publish:npm": "shx rm -rf dist && tsc src/TimeField/index.ts --jsx react --outDir dist --esModuleInterop --declaration"
