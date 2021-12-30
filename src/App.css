@@ -19,6 +19,7 @@
   grid-template-areas:
     'instruction instruction hour12'
     'instruction instruction hour24'
+    'instruction instruction colon'
     'instruction instruction value';
 }
 
@@ -56,4 +57,8 @@
 
 .time-value {
   grid-area: value;
+}
+
+.time-colon {
+  grid-area: colon;
 }

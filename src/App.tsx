@@ -51,6 +51,17 @@ function App() {
               className="time"
             />
           </div>
+          <div className="demo-time time-colon">
+            <label htmlFor="colon">colon: </label>
+            <TimeField
+              value={emptyValue}
+              onChange={handleEmptyChange}
+              isHour12={false}
+              colon="."
+              id="colon"
+              className="time"
+            />
+          </div>
           <div className="time-value">
             <label>Time Text: </label>
             <span className="time-text">{emptyValue}</span>
