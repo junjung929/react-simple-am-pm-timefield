@@ -103,12 +103,8 @@ const TimeField = ({
     useTimeNumber('second');
 
   // Hooks to control the timeText to display
-  const { timeText, initialTime, tickTime, updateTime, reset } = useTime(
-    value,
-    colon,
-    isHour12,
-    amPmNames
-  );
+  const { timeText, initialTime, tickTime, updateTime, setAmPm, reset } =
+    useTime(value, colon, isHour12, amPmNames);
 
   // Array of range info for each time number: all, hour, minute, second and amPm.
   const selectionRanges = useMemo(
@@ -151,14 +147,21 @@ const TimeField = ({
     else {
       // Move selectionRange to previous section.
       if (e.shiftKey && key === KeyEnum.Tab) {
-        e.preventDefault();
-        backwardSection();
+        if (!(section === 'hour' || section === 'all')) {
+          e.preventDefault();
+          backwardSection();
+        }
       }
 
       // Move selectionRange to next section.
       else if (key === KeyEnum.Tab) {
-        e.preventDefault();
-        forwardSection();
+        if (
+          (isHour12 && section !== 'amPm') ||
+          (!isHour12 && section !== 'second')
+        ) {
+          e.preventDefault();
+          forwardSection();
+        }
       }
 
       // Move selectionRange to previous or next section.
@@ -231,15 +234,64 @@ const TimeField = ({
           setSecondDigit(Number(key));
         }
 
-        // Change to another value.
+        // Keep the current value and move on.
         else if (section === 'amPm') {
-          tickTime('amPm', 'up');
+          forwardSection();
         }
 
         // Get hour value.
         else {
           setSection('hour');
           setHourDigit(Number(key));
+        }
+      }
+
+      // Handle am pm values in special cases
+      if (isHour12) {
+        // Update am pm value to am
+        if (
+          section === 'amPm' &&
+          !e.ctrlKey &&
+          !e.shiftKey &&
+          !e.altKey &&
+          amPmNames.am.toLocaleLowerCase().startsWith(key)
+        ) {
+          e.preventDefault();
+          setAmPm(amPmNames.am);
+        }
+
+        // Update am pm value to am
+        else if (
+          section === 'amPm' &&
+          !e.ctrlKey &&
+          !e.shiftKey &&
+          !e.altKey &&
+          amPmNames.pm.toLocaleLowerCase().startsWith(key)
+        ) {
+          e.preventDefault();
+          setAmPm(amPmNames.pm);
+        }
+
+        // Handling exceptional cases
+        else if (
+          section === 'amPm' &&
+          !e.ctrlKey &&
+          !e.shiftKey &&
+          !e.altKey &&
+          amPmNames.pm.toLocaleLowerCase().includes(key)
+        ) {
+          e.preventDefault();
+        }
+
+        // Handling exceptional cases
+        else if (
+          section === 'amPm' &&
+          !e.ctrlKey &&
+          !e.shiftKey &&
+          !e.altKey &&
+          String(key).length === 1
+        ) {
+          e.preventDefault();
         }
       }
     }
