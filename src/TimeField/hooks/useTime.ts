@@ -117,12 +117,51 @@ const useTime = (
   );
 
   // Reset timeText and TimeValue to default.
-  const reset = () => {
+  const reset = useCallback(() => {
     setTimeText('');
     setTimeValue(undefined);
-  };
+  }, []);
 
-  return { timeText, initialTime, tickTime, updateTime, reset };
+  const getAmPm = useCallback(() => {
+    const date = timeValue || new Date();
+
+    const h = date.getHours();
+
+    if (h >= 0 && h < 12) {
+      return amPmNames.am;
+    }
+    return amPmNames.pm;
+  }, [timeValue, amPmNames]);
+
+  const setAmPm = useCallback(
+    (amPm: AmPmNames[keyof AmPmNames]) => {
+      const current = getAmPm();
+
+      if (current === amPm) return;
+
+      if (timeValue === undefined) return;
+
+      const h = timeValue.getHours();
+
+      if (amPm === amPmNames.am) {
+        timeValue.setHours(h - 12);
+      } else {
+        timeValue.setHours(h + 12);
+      }
+      setTimeValue(new Date(timeValue));
+    },
+    [timeValue, amPmNames, getAmPm]
+  );
+
+  return {
+    timeText,
+    initialTime,
+    tickTime,
+    updateTime,
+    getAmPm,
+    setAmPm,
+    reset,
+  };
 };
 
 export default useTime;
