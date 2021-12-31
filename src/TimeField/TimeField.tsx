@@ -84,8 +84,8 @@ const TimeField = ({
   // Always save value as 24 hour format even though it can be displayed in 12 hour format.
   // Use with onChange handler.
   const formatTimeTextTo24Hour = useCallback(
-    (value: string) => formatTimeText(value, amPmNames, false, colon),
-    [amPmNames, colon]
+    (value: string) => formatTimeText(value, amPmNames, false, DEFAULT_COLON),
+    [amPmNames]
   );
 
   // Hooks to track the hour number change.
