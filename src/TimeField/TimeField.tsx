@@ -114,8 +114,6 @@ const TimeField = ({
 
   // Handle timeText when input.
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-
     setEventFlag('onKeyDown');
 
     const key = e.key;
@@ -299,7 +297,6 @@ const TimeField = ({
 
   // Handle time number section on cursor change.
   const handleSelect = (e: MouseEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setEventFlag('onSelect');
 
     if (value === '') return;
@@ -326,6 +323,10 @@ const TimeField = ({
     // Normalize value to avoid overflow.
     start = start > timeText.length ? timeText.length : start < 0 ? 0 : start;
     end = end > timeText.length ? timeText.length : end < 0 ? 0 : end;
+
+    if (start === timeText.length && end === timeText.length) {
+      return 'hour';
+    }
 
     // Find the corresponding range to the start and the end positions.
     const [allRange, ...ranges] = selectionRanges;
@@ -461,7 +462,6 @@ const TimeField = ({
 
   // Handle when the element is focused out.
   const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setEventFlag('onBlur');
 
     // Queue update into stack so it is triggered after default action.
@@ -478,7 +478,6 @@ const TimeField = ({
 
   // Handle when input value is changed.
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setEventFlag('onChange');
 
     // Reformat time text to 24 hour format.
