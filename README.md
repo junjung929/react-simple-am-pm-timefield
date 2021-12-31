@@ -5,7 +5,6 @@ Simple React time input field with 12/24 hour support.
 ![image](https://user-images.githubusercontent.com/26710672/147738718-039a2900-5d66-470f-ba1f-3e90385c7a87.png)
 ![image](https://user-images.githubusercontent.com/26710672/147738881-70290780-db6f-45bc-8026-2a75cda42ea3.png)
 
-
 Demo available [here](https://react-simpe-am-pm-timefield-demo.netlify.app)
 
 ## Installation
@@ -17,9 +16,10 @@ npm i react-simple-am-pm-time-field
 ## Usage
 
 ```javascript
-import TimeField from 'react-simple-am-pm-timefield';
-import React, { useEffect, useState } from 'react';
+import TimeField from 'react-simple-am-pm-time-field';
+import React, { useEffect, useState, useRef } from 'react';
 
+const inputRef = useRef < HTMLInputElement > null;
 const [value, setValue] = useState('');
 
 const handleChange = (text: string) => {
@@ -37,6 +37,7 @@ const amPmNames = {
 
 return (
   <TimeField
+    ref={inputRef}
     value={value}
     onChange={handleChange}
     isHour12={false}
@@ -49,6 +50,11 @@ return (
 ## Properties
 
 ### Basic Input Properties
+
+- **ref** :
+
+  - type : `RefObject<HTMLInputElement>`
+  - optional
 
 - **className** :
 
