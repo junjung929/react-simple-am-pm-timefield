@@ -2,11 +2,15 @@ import React, {
   ChangeEvent,
   CSSProperties,
   FocusEvent,
+  ForwardedRef,
+  forwardRef,
   KeyboardEvent,
   memo,
   MouseEvent,
+  RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -31,6 +35,8 @@ interface TimeFieldProps {
   style?: CSSProperties;
   placeHolder?: string;
   title?: string;
+  forwardedRef?: ForwardedRef<HTMLInputElement>;
+  ref: ForwardedRef<HTMLInputElement>;
 }
 
 type TimeSection = TimeSelectionName;
@@ -71,9 +77,21 @@ const TimeField = ({
   placeHolder,
 
   title,
+
+  forwardedRef,
 }: TimeFieldProps) => {
   // Input element reference.
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    if (forwardedRef) {
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(inputRef.current);
+      } else {
+        (forwardedRef as any).current = inputRef.current;
+      }
+    }
+  }, [inputRef, forwardedRef]);
 
   // Section for the selected ranged of time numbers.
   const [section, setSection] = useState<TimeSection>();
@@ -505,4 +523,6 @@ const TimeField = ({
   );
 };
 
-export default memo(TimeField);
+export default forwardRef<HTMLInputElement, TimeFieldProps>((props, ref) => (
+  <TimeField {...props} forwardedRef={ref} />
+));

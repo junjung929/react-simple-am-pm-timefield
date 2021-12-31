@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useMemo } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 import './App.css';
 import TimeField, { generateTimeTextFromDate } from './TimeField';
 import useField from './useField';
@@ -19,9 +19,10 @@ function App() {
   }, [radioValue, customValue]);
   const [value, setValue] = useField(initialValue || '');
 
+  const myRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    const input = document.getElementById('hour12');
-    input?.focus();
+    myRef.current?.focus();
   }, []);
 
   return (
@@ -72,6 +73,7 @@ function App() {
           <div className="demo-time time-hour12">
             <label htmlFor="hour12">12h: </label>
             <TimeField
+              ref={myRef}
               value={value}
               onChange={setValue}
               isHour12={true}
