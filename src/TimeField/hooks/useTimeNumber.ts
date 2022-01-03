@@ -72,8 +72,13 @@ const useTimeNumber = (
 
     // If both digits not set
     if (!isTensDigitReady && !isUnitsDigitReady) {
+      // If tens digit is 0 and 12 hour format, make sure not to set to 0.
+      if (value === 0 && isHour12) {
+        num = Math.floor(num / 10) || 1;
+      }
+
       // Set tens digit if the given number is smaller than limit.
-      if (value <= tensDigitLimit) {
+      else if (value <= tensDigitLimit) {
         num = (num % 10) + value * 10;
 
         // Set only tens digit is ready.

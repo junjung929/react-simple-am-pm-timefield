@@ -57,4 +57,5 @@ export enum KeyEnum {
   Escape = 'Escape',
   Backspace = 'Backspace',
   Enter = 'Enter',
+  Space = ' ',
 }

@@ -159,8 +159,13 @@ const TimeField = ({
 
     // If not empty
     else {
+      // Space no effect
+      if (key === KeyEnum.Space) {
+        e.preventDefault();
+      }
+
       // Move selectionRange to previous section.
-      if (e.shiftKey && key === KeyEnum.Tab) {
+      else if (e.shiftKey && key === KeyEnum.Tab) {
         if (!(section === 'hour' || section === 'all')) {
           e.preventDefault();
           backwardSection();
@@ -262,49 +267,26 @@ const TimeField = ({
 
       // Handle am pm values in special cases
       if (isHour12) {
+        const isAmMatch =
+          amPmNames.am.toLocaleLowerCase().startsWith(key) ||
+          amPmNames.am.toUpperCase().startsWith(key);
+        const isPmMatch =
+          amPmNames.pm.toLocaleLowerCase().startsWith(key) ||
+          amPmNames.pm.toUpperCase().startsWith(key);
         // Update am pm value to am
-        if (
-          section === 'amPm' &&
-          !e.ctrlKey &&
-          !e.shiftKey &&
-          !e.altKey &&
-          amPmNames.am.toLocaleLowerCase().startsWith(key)
-        ) {
+        if (!e.ctrlKey && !e.altKey && isAmMatch) {
           e.preventDefault();
           setAmPm(amPmNames.am);
         }
 
         // Update am pm value to am
-        else if (
-          section === 'amPm' &&
-          !e.ctrlKey &&
-          !e.shiftKey &&
-          !e.altKey &&
-          amPmNames.pm.toLocaleLowerCase().startsWith(key)
-        ) {
+        else if (!e.ctrlKey && !e.altKey && isPmMatch) {
           e.preventDefault();
           setAmPm(amPmNames.pm);
         }
 
         // Handling exceptional cases
-        else if (
-          section === 'amPm' &&
-          !e.ctrlKey &&
-          !e.shiftKey &&
-          !e.altKey &&
-          amPmNames.pm.toLocaleLowerCase().includes(key)
-        ) {
-          e.preventDefault();
-        }
-
-        // Handling exceptional cases
-        else if (
-          section === 'amPm' &&
-          !e.ctrlKey &&
-          !e.shiftKey &&
-          !e.altKey &&
-          String(key).length === 1
-        ) {
+        else if (!e.ctrlKey && !e.altKey && String(key).length === 1) {
           e.preventDefault();
         }
       }
