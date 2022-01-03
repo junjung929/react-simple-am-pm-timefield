@@ -15,11 +15,11 @@ npm i react-simple-am-pm-time-field
 
 ## Usage
 
-```js
+```ts
 import TimeField from 'react-simple-am-pm-time-field';
 import React, { useEffect, useState, useRef } from 'react';
 
-const inputRef = useRef < HTMLInputElement > (null);
+const inputRef = useRef<HTMLInputElement>(null);
 const [value, setValue] = useState('');
 
 const handleChange = (text: string) => {
