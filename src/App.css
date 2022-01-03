@@ -20,7 +20,9 @@
     'instruction instruction hour12'
     'instruction instruction hour24'
     'instruction instruction colon'
-    'instruction instruction value';
+    'instruction instruction value'
+    'instruction instruction v2'
+    'instruction instruction value2';
 }
 
 .demo-instruction {
@@ -61,4 +63,12 @@
 
 .time-colon {
   grid-area: colon;
+}
+
+.time-value-v2 {
+  grid-area: value2;
+}
+
+.time-v2 {
+  grid-area: v2;
 }

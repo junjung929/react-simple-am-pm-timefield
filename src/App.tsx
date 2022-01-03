@@ -1,6 +1,13 @@
-import React, { ChangeEvent, useEffect, useMemo, useRef } from 'react';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import './App.css';
 import TimeField, { generateTimeTextFromDate } from './TimeField';
+import TimeFieldV2 from './TimeFieldV2';
 import useField from './useField';
 
 function App() {
@@ -19,7 +26,15 @@ function App() {
   }, [radioValue, customValue]);
   const [value, setValue] = useField(initialValue || '');
 
+  const [v2Value, setV2Value] = useState('');
+
   const myRef = useRef<HTMLInputElement>(null);
+
+  const v2Ref = useRef<HTMLInputElement>(null);
+
+  const handleV2Change = (_e: ChangeEvent<HTMLInputElement>, value: string) => {
+    setV2Value(value);
+  };
 
   useEffect(() => {
     myRef.current?.focus();
@@ -105,6 +120,22 @@ function App() {
           <div className="time-value">
             <label>Time Text: </label>
             <span className="time-text">{value}</span>
+          </div>
+          <div className="demo-time time-v2">
+            <label htmlFor="colon">v2: </label>
+            <TimeFieldV2
+              ref={v2Ref}
+              value={v2Value}
+              onChange={handleV2Change}
+              isHour12={true}
+              colon="."
+              id="colon"
+              className="time"
+            />
+          </div>
+          <div className="time-value-v2">
+            <label>Time Text: </label>
+            <span className="time-text">{v2Value}</span>
           </div>
         </div>
       </div>
