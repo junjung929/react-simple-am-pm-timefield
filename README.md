@@ -15,7 +15,7 @@ npm i react-simple-am-pm-time-field
 
 ## Usage
 
-```
+```js
 import TimeField from 'react-simple-am-pm-time-field';
 import React, { useEffect, useState, useRef } from 'react';
 
